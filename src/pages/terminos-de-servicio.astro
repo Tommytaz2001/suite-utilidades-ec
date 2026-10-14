@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Términos de Servicio | Herramientas EC';
+const description = 'Términos y condiciones de uso de Herramientas EC. Conoce las reglas de uso de nuestras calculadoras y herramientas gratuitas.';
+const fecha = '13 de octubre de 2026';
+---
+<BaseLayout title={title} description={description} canonical="https://herramientas-ec.pages.dev/terminos-de-servicio/">
+  <Header />
+  <main style="max-width:800px; margin:0 auto; padding:3rem 1.5rem;">
+    <h1 style="font-size:2rem; font-weight:900; margin-bottom:0.5rem;">Términos de Servicio</h1>
+    <p style="color:var(--text-muted); margin-bottom:2rem;">Última actualización: {fecha}</p>
+
+    <div class="prose-dark">
+      <p>
+        Al acceder y utilizar <strong>Herramientas EC</strong>, aceptas estar sujeto a los siguientes términos y condiciones de uso. Si no estás de acuerdo con alguno de estos términos, por favor no utilices el Sitio.
+      </p>
+
+      <h2>1. Descripción del Servicio</h2>
+      <p>
+        Herramientas EC es una plataforma web gratuita que ofrece calculadoras y herramientas de utilidad diaria, incluyendo simuladores financieros, calculadoras laborales, herramientas de nutrición y utilidades técnicas. Todas las herramientas procesan datos exclusivamente en el navegador del usuario.
+      </p>
+
+      <h2>2. Carácter Referencial de los Resultados</h2>
+      <p>
+        <strong>Los resultados generados por nuestras herramientas son de carácter estrictamente referencial e informativo.</strong> No constituyen asesoramiento financiero, legal, laboral, médico ni de ningún otro tipo profesional.
+      </p>
+      <p>
+        Los cálculos financieros (simulador de crédito, calculadora laboral) se basan en las fórmulas y tasas de referencia publicadas por el Banco Central del Ecuador y el Ministerio de Trabajo. Sin embargo, las condiciones reales pueden variar según la institución financiera, el empleador o las actualizaciones regulatorias.
+      </p>
+      <p>
+        Te recomendamos consultar con un profesional calificado antes de tomar decisiones financieras, laborales o de salud basadas en estos resultados.
+      </p>
+
+      <h2>3. Uso Aceptable</h2>
+      <p>Al usar Herramientas EC, te comprometes a:</p>
+      <ul>
+        <li>No usar el Sitio para actividades ilegales o fraudulentas.</li>
+        <li>No intentar sobrecargar, hackear o interferir con el funcionamiento del Sitio.</li>
+        <li>No copiar o redistribuir el contenido del Sitio sin atribución apropiada.</li>
+        <li>No usar scrapers automáticos de forma masiva.</li>
+      </ul>
+
+      <h2>4. Propiedad Intelectual</h2>
+      <p>
+        El código fuente, el diseño y el contenido original de Herramientas EC están protegidos por derechos de autor. Las fórmulas matemáticas y los datos regulatorios de organismos públicos son de dominio público.
+      </p>
+
+      <h2>5. Limitación de Responsabilidad</h2>
+      <p>
+        Herramientas EC se proporciona "tal cual" sin garantías de ningún tipo. No nos hacemos responsables de decisiones tomadas con base en los resultados de nuestras herramientas, ni de interrupciones del servicio, pérdidas de datos o daños derivados del uso del Sitio.
+      </p>
+
+      <h2>6. Publicidad</h2>
+      <p>
+        El Sitio puede mostrar anuncios a través de Google AdSense. Los anunciantes son terceros y Herramientas EC no respalda ni es responsable del contenido de dichos anuncios.
+      </p>
+
+      <h2>7. Modificaciones</h2>
+      <p>
+        Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado del Sitio tras las modificaciones constituye la aceptación de los nuevos términos.
+      </p>
+
+      <h2>8. Contacto</h2>
+      <p>
+        Para preguntas o inquietudes sobre estos términos, contáctanos a través de nuestra <a href="/contacto/" style="color:var(--accent);">página de contacto</a>.
+      </p>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

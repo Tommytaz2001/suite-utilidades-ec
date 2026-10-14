@@ -1,0 +1,477 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+
+const faqs = [
+  {
+    question: '¿Qué diferencia hay entre el sistema Francés y el sistema Alemán de amortización?',
+    answer: 'En el sistema Francés, pagas la misma cuota todos los meses (cuota fija). Al principio pagas más intereses y menos capital, y al final más capital y menos intereses. En el sistema Alemán, el capital que amortizas cada mes es siempre el mismo (capital fijo), por lo que las cuotas van disminuyendo con el tiempo porque el saldo del crédito baja más rápido. El alemán es más barato en total, pero exige mayor liquidez al inicio.'
+  },
+  {
+    question: '¿Las tasas de interés mostradas son las tasas reales de los bancos ecuatorianos?',
+    answer: 'Las tasas preconfiguradas corresponden a las tasas máximas referenciales publicadas por el Banco Central del Ecuador (BCE). Cada banco, cooperativa o mutualista puede ofrecer tasas distintas dentro de ese tope. Siempre verifica la tasa exacta con tu institución financiera antes de firmar cualquier contrato.'
+  },
+  {
+    question: '¿Qué es la tabla de amortización?',
+    answer: 'La tabla de amortización es un cronograma detallado que muestra, mes a mes, cómo se divide cada pago entre capital (lo que reduces de tu deuda) e intereses (lo que pagas al banco por prestarte el dinero). También muestra el saldo pendiente después de cada pago, lo que te permite saber exactamente cuánto debes en cualquier momento.'
+  },
+  {
+    question: '¿Qué es la tasa de interés nominal y la efectiva anual (TEA)?',
+    answer: 'La tasa nominal es la que te anuncia el banco (por ejemplo 16% anual). La tasa efectiva anual (TEA) considera la capitalización mensual y suele ser ligeramente superior. Este simulador usa la tasa nominal ingresada y la convierte a tasa mensual dividiéndola entre 12, que es la metodología estándar del sistema bancario ecuatoriano regulado por el BCE.'
+  },
+  {
+    question: '¿Puedo usar este simulador para un crédito hipotecario del BIESS?',
+    answer: 'Sí. Selecciona la opción "Hipotecario / BIESS" en el tipo de crédito y ajusta la tasa si conoces la tasa específica que te ofreció el BIESS. El BIESS utiliza el sistema Francés (cuota fija), así que selecciona esa opción. Los plazos hipotecarios del BIESS pueden ser de hasta 25 años (300 meses).'
+  },
+  {
+    question: '¿Los datos que ingreso se guardan o se envían a algún servidor?',
+    answer: 'No. Todo el cálculo ocurre 100% en tu navegador con JavaScript. Ningún dato (monto, plazo, tasas) es enviado a nuestros servidores ni almacenado en ninguna base de datos. Puedes usar este simulador con total privacidad.'
+  },
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(f => ({
+    "@type": "Question",
+    "name": f.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.answer
+    }
+  }))
+};
+---
+<ToolLayout
+  title="Simulador de Crédito y Tabla de Amortización Ecuador 2025 | Gratis"
+  description="Simula tu crédito de consumo, hipotecario BIESS o microcrédito en Ecuador. Calcula cuotas con el sistema Francés o Alemán, ve la tabla de amortización mes a mes y exporta a CSV. Gratis, sin registro."
+  canonical="https://herramientas-ec.pages.dev/simulador-credito-ecuador/"
+  schema={schema}
+  toolName="Simulador de Crédito y Tabla de Amortización"
+  toolIcon="💳"
+  toolTagline="Calcula tus cuotas con el sistema Francés o Alemán. Tasas referenciales del BCE Ecuador incluidas."
+>
+
+<!-- ===== FORMULARIO ===== -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;" id="main-grid">
+
+  <!-- Panel izquierdo: formulario -->
+  <section class="card" aria-labelledby="form-title">
+    <h2 id="form-title" class="section-title" style="margin-bottom:1.5rem;">Datos del Crédito</h2>
+
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+      <!-- Monto -->
+      <div>
+        <label for="monto" class="form-label">Monto del crédito (USD $)</label>
+        <input type="number" id="monto" class="form-input" value="10000" min="100" max="1000000" step="100" placeholder="10000" />
+      </div>
+
+      <!-- Plazo -->
+      <div>
+        <label for="plazo" class="form-label">Plazo (meses)</label>
+        <select id="plazo" class="form-select">
+          <option value="6">6 meses</option>
+          <option value="12">12 meses (1 año)</option>
+          <option value="18">18 meses</option>
+          <option value="24" selected>24 meses (2 años)</option>
+          <option value="36">36 meses (3 años)</option>
+          <option value="48">48 meses (4 años)</option>
+          <option value="60">60 meses (5 años)</option>
+          <option value="72">72 meses (6 años)</option>
+          <option value="84">84 meses (7 años)</option>
+          <option value="120">120 meses (10 años)</option>
+          <option value="180">180 meses (15 años)</option>
+          <option value="240">240 meses (20 años)</option>
+          <option value="300">300 meses (25 años)</option>
+        </select>
+      </div>
+
+      <!-- Tipo de crédito -->
+      <div>
+        <label for="tipo-credito" class="form-label">Tipo de crédito</label>
+        <select id="tipo-credito" class="form-select">
+          <option value="16.00">Consumo Ordinario — 16.00% anual</option>
+          <option value="8.50">Hipotecario / BIESS — 8.50% anual</option>
+          <option value="21.00">Microcrédito — 21.00% anual</option>
+          <option value="14.00">Vehicular — 14.00% anual</option>
+          <option value="manual">Tasa personalizada...</option>
+        </select>
+      </div>
+
+      <!-- Tasa manual -->
+      <div id="tasa-manual-wrapper" style="display:none;">
+        <label for="tasa-manual" class="form-label">Tasa de interés anual (%)</label>
+        <input type="number" id="tasa-manual" class="form-input" value="12" min="0.1" max="60" step="0.01" placeholder="12.00" />
+      </div>
+
+      <!-- Sistema de amortización -->
+      <div>
+        <label class="form-label">Sistema de amortización</label>
+        <div class="toggle-group" role="radiogroup" aria-label="Sistema de amortización">
+          <button class="toggle-btn active" data-sistema="frances" role="radio" aria-checked="true" id="btn-frances">
+            🇫🇷 Francés (cuota fija)
+          </button>
+          <button class="toggle-btn" data-sistema="aleman" role="radio" aria-checked="false" id="btn-aleman">
+            🇩🇪 Alemán (decreciente)
+          </button>
+        </div>
+      </div>
+
+      <!-- Botón calcular -->
+      <button id="btn-calcular" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem; font-size:1rem; padding:1rem;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+        </svg>
+        Calcular crédito
+      </button>
+    </div>
+  </section>
+
+  <!-- Panel derecho: resumen -->
+  <section aria-labelledby="resumen-title">
+    <h2 id="resumen-title" class="section-title" style="margin-bottom:1rem;">Resumen del Crédito</h2>
+
+    <!-- Tarjetas de resumen -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem; margin-bottom:1rem;">
+      <div class="stat-card">
+        <div class="stat-label">Cuota mensual</div>
+        <div class="stat-value" id="stat-cuota">—</div>
+        <div class="stat-sub" id="stat-cuota-sub">Sistema Francés</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total intereses</div>
+        <div class="stat-value" id="stat-intereses" style="color:#f87171;">—</div>
+        <div class="stat-sub">Costo del dinero</div>
+      </div>
+    </div>
+    <div class="stat-card" style="margin-bottom:1rem;">
+      <div class="stat-label">Costo total del crédito</div>
+      <div class="stat-value" id="stat-total" style="font-size:2rem;">—</div>
+      <div class="stat-sub" id="stat-total-sub">Capital + intereses</div>
+    </div>
+
+    <!-- Barra de proporción -->
+    <div class="card" id="proporcion-wrapper" style="display:none;">
+      <div style="font-size:0.8125rem; font-weight:600; color:var(--text-muted); margin-bottom:0.625rem; text-transform:uppercase; letter-spacing:0.06em;">
+        Composición del crédito
+      </div>
+      <div style="display:flex; border-radius:999px; overflow:hidden; height:14px; margin-bottom:0.5rem;">
+        <div id="bar-capital" style="background:var(--accent); transition:width 0.5s ease;"></div>
+        <div id="bar-intereses" style="background:#f87171; flex:1; transition:width 0.5s ease;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted);">
+        <span>🟢 Capital: <strong id="pct-capital" style="color:var(--accent);">—</strong></span>
+        <span>🔴 Intereses: <strong id="pct-intereses" style="color:#f87171;">—</strong></span>
+      </div>
+    </div>
+
+    <!-- Botón exportar -->
+    <button id="btn-exportar" class="btn-secondary" style="width:100%; justify-content:center; margin-top:1rem; display:none;">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      Exportar tabla a CSV
+    </button>
+  </section>
+</div>
+
+<!-- ===== TABLA DE AMORTIZACIÓN ===== -->
+<section id="tabla-section" style="display:none; margin-bottom:2.5rem;" aria-labelledby="tabla-title" class="animate-in">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+    <div>
+      <h2 id="tabla-title" class="section-title" style="margin-bottom:0.25rem;">Tabla de Amortización</h2>
+      <p class="section-subtitle" id="tabla-subtitle">Detalle mes a mes de tu crédito</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="tabla-amortizacion">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Cuota</th>
+          <th>Capital</th>
+          <th>Interés</th>
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body">
+      </tbody>
+      <tfoot id="tabla-footer"></tfoot>
+    </table>
+  </div>
+</section>
+
+<!-- ===== CONTENIDO SEO ===== -->
+<article class="prose-dark" style="margin-bottom:2.5rem; padding-top:1rem; border-top:1px solid var(--border);">
+  <h2>¿Cómo funciona este Simulador de Crédito Ecuador?</h2>
+  <p>
+    Esta herramienta te permite simular cualquier tipo de crédito que ofrecen los bancos, cooperativas y mutualistas del Ecuador, incluyendo los créditos de consumo, hipotecarios del BIESS, microcréditos y créditos vehiculares. Solo necesitas ingresar el <strong>monto del crédito en dólares</strong>, el <strong>plazo en meses</strong>, la <strong>tasa de interés anual</strong> y el <strong>sistema de amortización</strong> (Francés o Alemán) para obtener al instante la tabla de amortización completa.
+  </p>
+
+  <h2>Sistema Francés vs. Sistema Alemán: ¿Cuál conviene más?</h2>
+  <h3>Sistema Francés (Cuota Fija)</h3>
+  <p>
+    Es el más utilizado en Ecuador por bancos como Pichincha, Guayaquil, Pacífico y cooperativas como JEP o Jardín Azuayo. Con este método, <strong>pagas exactamente la misma cuota todos los meses</strong>, lo que facilita la planificación de tu presupuesto. La desventaja es que al inicio del crédito la mayor parte de tu cuota se destina a pagar intereses y solo una pequeña porción reduce el capital de la deuda.
+  </p>
+  <p>
+    <strong>Ejemplo:</strong> En un crédito de $10,000 a 24 meses al 16% anual con el sistema Francés, pagas aproximadamente $489.25 cada mes, con una cuota siempre igual durante los dos años.
+  </p>
+
+  <h3>Sistema Alemán (Capital Fijo, Cuotas Decrecientes)</h3>
+  <p>
+    Con el sistema Alemán, <strong>el capital que amortizas cada mes es siempre igual</strong> (monto total ÷ número de meses), pero los intereses disminuyen progresivamente porque el saldo de la deuda baja más rápido. Esto significa que la primera cuota es la más cara, pero las siguientes son cada vez más baratas.
+  </p>
+  <p>
+    <strong>Ventaja clave:</strong> El costo total del crédito alemán siempre es menor que el francés bajo las mismas condiciones, porque el capital se amortiza más rápido y generas menos intereses acumulados. Es ideal si tienes mayor liquidez al inicio del crédito.
+  </p>
+
+  <h2>Tasas de Interés Referenciales en Ecuador (2025)</h2>
+  <p>
+    Las tasas máximas referenciales son publicadas mensualmente por el <strong>Banco Central del Ecuador (BCE)</strong>. Ninguna institución financiera puede cobrar tasas superiores a estos topes:
+  </p>
+  <ul>
+    <li><strong>Crédito de Consumo Ordinario:</strong> ~16.00% anual. Es el crédito para comprar bienes o servicios de uso personal.</li>
+    <li><strong>Crédito Hipotecario / BIESS:</strong> ~8.50% anual. Tasas más bajas para financiar vivienda a largo plazo.</li>
+    <li><strong>Microcrédito:</strong> ~21.00% anual. Para emprendedores y pequeños negocios con montos menores.</li>
+    <li><strong>Crédito Vehicular:</strong> ~14.00% anual. Para compra de vehículos nuevos o usados.</li>
+  </ul>
+  <p>
+    <strong>Consejo:</strong> Antes de solicitar un crédito, compara las tasas de al menos 3 instituciones financieras. Pequeñas diferencias en la tasa pueden representar cientos de dólares en intereses a lo largo del crédito.
+  </p>
+
+  <h2>¿Qué es la Tabla de Amortización?</h2>
+  <p>
+    La tabla de amortización es un cronograma financiero que muestra, <strong>mes a mes</strong>, cómo se distribuye cada pago entre capital e intereses y cuál es el saldo pendiente tras cada cuota. Es el documento más importante de cualquier contrato de crédito porque te permite:
+  </p>
+  <ul>
+    <li>Conocer exactamente cuánto debes en cualquier mes del crédito.</li>
+    <li>Calcular el ahorro real de hacer un pago anticipado o abono extra al capital.</li>
+    <li>Verificar que los cobros de tu institución financiera son correctos.</li>
+    <li>Planificar tu flujo de caja mensual con exactitud.</li>
+  </ul>
+
+  <h2>Cómo usar este simulador paso a paso</h2>
+  <ul>
+    <li><strong>Paso 1:</strong> Ingresa el monto que necesitas (ej. $15,000).</li>
+    <li><strong>Paso 2:</strong> Selecciona el plazo en meses (ej. 48 meses = 4 años).</li>
+    <li><strong>Paso 3:</strong> Escoge el tipo de crédito o ingresa la tasa que te ofreció el banco.</li>
+    <li><strong>Paso 4:</strong> Elige entre sistema Francés o Alemán.</li>
+    <li><strong>Paso 5:</strong> Haz clic en "Calcular crédito" para ver al instante la tabla completa.</li>
+    <li><strong>Paso 6 (opcional):</strong> Exporta la tabla a CSV para abrirla en Excel.</li>
+  </ul>
+</article>
+
+<!-- FAQ -->
+<FaqAccordion items={faqs} />
+
+</ToolLayout>
+
+<!-- ===== LÓGICA JAVASCRIPT ===== -->
+<script>
+  // ---- Utilidades ----
+  const fmt = (n: number) => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const fmtNum = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // ---- Estado ----
+  let sistemaActivo = 'frances';
+  let tablaData: { mes: number; cuota: number; capital: number; interes: number; saldo: number }[] = [];
+
+  // ---- Referencias DOM ----
+  const montoInput    = document.getElementById('monto') as HTMLInputElement;
+  const plazoSelect   = document.getElementById('plazo') as HTMLSelectElement;
+  const tipoCreditoSel = document.getElementById('tipo-credito') as HTMLSelectElement;
+  const tasaManualWrap = document.getElementById('tasa-manual-wrapper') as HTMLElement;
+  const tasaManualInp = document.getElementById('tasa-manual') as HTMLInputElement;
+  const btnFrances    = document.getElementById('btn-frances') as HTMLButtonElement;
+  const btnAleman     = document.getElementById('btn-aleman') as HTMLButtonElement;
+  const btnCalcular   = document.getElementById('btn-calcular') as HTMLButtonElement;
+  const btnExportar   = document.getElementById('btn-exportar') as HTMLButtonElement;
+
+  const statCuota      = document.getElementById('stat-cuota')!;
+  const statCuotaSub   = document.getElementById('stat-cuota-sub')!;
+  const statIntereses  = document.getElementById('stat-intereses')!;
+  const statTotal      = document.getElementById('stat-total')!;
+  const statTotalSub   = document.getElementById('stat-total-sub')!;
+  const tablaSection   = document.getElementById('tabla-section') as HTMLElement;
+  const tablaBody      = document.getElementById('tabla-body')!;
+  const tablaFooter    = document.getElementById('tabla-footer')!;
+  const tablaSubtitle  = document.getElementById('tabla-subtitle')!;
+  const proporcionWrap = document.getElementById('proporcion-wrapper') as HTMLElement;
+  const barCapital     = document.getElementById('bar-capital') as HTMLElement;
+  const pctCapital     = document.getElementById('pct-capital')!;
+  const pctIntereses   = document.getElementById('pct-intereses')!;
+
+  // ---- Tipo de crédito → tasa ----
+  tipoCreditoSel.addEventListener('change', () => {
+    tasaManualWrap.style.display = tipoCreditoSel.value === 'manual' ? 'block' : 'none';
+  });
+
+  // ---- Toggle sistema ----
+  function setsistema(s: string) {
+    sistemaActivo = s;
+    btnFrances.classList.toggle('active', s === 'frances');
+    btnAleman.classList.toggle('active', s === 'aleman');
+    btnFrances.setAttribute('aria-checked', s === 'frances' ? 'true' : 'false');
+    btnAleman.setAttribute('aria-checked', s === 'aleman' ? 'true' : 'false');
+  }
+  btnFrances.addEventListener('click', () => setSystem('frances'));
+  btnAleman.addEventListener('click', () => setSystem('aleman'));
+
+  function setSystem(s: string) { setsistema(s); }
+
+  // ---- Cálculo Francés ----
+  function calcularFrances(M: number, n: number, i: number) {
+    const cuota = i === 0 ? M / n : (M * i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
+    const tabla = [];
+    let saldo = M;
+    for (let mes = 1; mes <= n; mes++) {
+      const interes = saldo * i;
+      const capital = cuota - interes;
+      saldo -= capital;
+      tabla.push({ mes, cuota, capital, interes, saldo: Math.max(saldo, 0) });
+    }
+    return tabla;
+  }
+
+  // ---- Cálculo Alemán ----
+  function calcularAleman(M: number, n: number, i: number) {
+    const capitalFijo = M / n;
+    const tabla = [];
+    let saldo = M;
+    for (let mes = 1; mes <= n; mes++) {
+      const interes = saldo * i;
+      const cuota = capitalFijo + interes;
+      saldo -= capitalFijo;
+      tabla.push({ mes, cuota, capital: capitalFijo, interes, saldo: Math.max(saldo, 0) });
+    }
+    return tabla;
+  }
+
+  // ---- Renderizar tabla ----
+  function renderTabla(datos: typeof tablaData) {
+    tablaBody.innerHTML = datos.map(r => `
+      <tr>
+        <td>${r.mes}</td>
+        <td>${fmt(r.cuota)}</td>
+        <td>${fmt(r.capital)}</td>
+        <td>${fmt(r.interes)}</td>
+        <td>${fmt(r.saldo)}</td>
+      </tr>
+    `).join('');
+
+    const totalCuota     = datos.reduce((s, r) => s + r.cuota, 0);
+    const totalCapital   = datos.reduce((s, r) => s + r.capital, 0);
+    const totalIntereses = datos.reduce((s, r) => s + r.interes, 0);
+    tablaFooter.innerHTML = `
+      <tr style="background:var(--surface-2); font-weight:700;">
+        <td style="text-align:center; color:var(--text);">TOTAL</td>
+        <td>${fmt(totalCuota)}</td>
+        <td>${fmt(totalCapital)}</td>
+        <td style="color:#f87171;">${fmt(totalIntereses)}</td>
+        <td>—</td>
+      </tr>
+    `;
+  }
+
+  // ---- Calcular ----
+  btnCalcular.addEventListener('click', () => {
+    const M = parseFloat(montoInput.value);
+    const n = parseInt(plazoSelect.value);
+    const tasaAnual = tipoCreditoSel.value === 'manual'
+      ? parseFloat(tasaManualInp.value)
+      : parseFloat(tipoCreditoSel.value);
+    const i = tasaAnual / 100 / 12;
+
+    if (isNaN(M) || M <= 0 || isNaN(n) || n <= 0 || isNaN(tasaAnual)) {
+      alert('Por favor completa todos los campos correctamente.');
+      return;
+    }
+
+    tablaData = sistemaActivo === 'frances'
+      ? calcularFrances(M, n, i)
+      : calcularAleman(M, n, i);
+
+    const totalIntereses = tablaData.reduce((s, r) => s + r.interes, 0);
+    const totalTotal     = M + totalIntereses;
+
+    // Stats
+    if (sistemaActivo === 'frances') {
+      statCuota.textContent = fmt(tablaData[0].cuota);
+      statCuotaSub.textContent = 'Cuota fija mensual';
+    } else {
+      statCuota.textContent = fmt(tablaData[0].cuota);
+      statCuotaSub.textContent = `1ª cuota (baja hasta ${fmt(tablaData[n-1].cuota)})`;
+    }
+    statIntereses.textContent  = fmt(totalIntereses);
+    statTotal.textContent      = fmt(totalTotal);
+    statTotalSub.textContent   = `${fmt(M)} capital + ${fmt(totalIntereses)} intereses`;
+
+    // Barra proporción
+    const pctCap = (M / totalTotal) * 100;
+    const pctInt = 100 - pctCap;
+    barCapital.style.width = pctCap.toFixed(1) + '%';
+    pctCapital.textContent = pctCap.toFixed(1) + '%';
+    pctIntereses.textContent = pctInt.toFixed(1) + '%';
+    proporcionWrap.style.display = 'block';
+
+    // Tabla
+    renderTabla(tablaData);
+    tablaSubtitle.textContent = `Sistema ${sistemaActivo === 'frances' ? 'Francés' : 'Alemán'} · ${n} meses · ${tasaAnual.toFixed(2)}% anual`;
+    tablaSection.style.display = 'block';
+    btnExportar.style.display = 'flex';
+
+    // Scroll suave a resultados
+    setTimeout(() => tablaSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  });
+
+  // ---- Exportar CSV ----
+  btnExportar.addEventListener('click', () => {
+    const M = parseFloat(montoInput.value);
+    const n = parseInt(plazoSelect.value);
+    const tasaAnual = tipoCreditoSel.value === 'manual'
+      ? parseFloat(tasaManualInp.value)
+      : parseFloat(tipoCreditoSel.value);
+
+    const headers = ['Mes', 'Cuota (USD)', 'Capital (USD)', 'Interés (USD)', 'Saldo (USD)'];
+    const rows = tablaData.map(r => [
+      r.mes,
+      r.cuota.toFixed(2),
+      r.capital.toFixed(2),
+      r.interes.toFixed(2),
+      r.saldo.toFixed(2)
+    ]);
+    const totalInt = tablaData.reduce((s, r) => s + r.interes, 0);
+    rows.push(['TOTAL', (M + totalInt).toFixed(2), M.toFixed(2), totalInt.toFixed(2), '0.00']);
+
+    const csvContent = [
+      `Simulador de Crédito Ecuador — herramientas-ec.pages.dev`,
+      `Monto: $${M} | Plazo: ${n} meses | Tasa: ${tasaAnual}% anual | Sistema: ${sistemaActivo === 'frances' ? 'Francés' : 'Alemán'}`,
+      '',
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `amortizacion-credito-ecuador-${n}meses-${tasaAnual}pct.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ---- Calcular automáticamente al cargar ----
+  window.addEventListener('DOMContentLoaded', () => {
+    btnCalcular.click();
+  });
+</script>
+
+<style>
+  @media (max-width: 768px) {
+    #main-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

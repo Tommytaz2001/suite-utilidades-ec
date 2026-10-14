@@ -1,0 +1,32 @@
+---
+interface Props {
+  id: string;
+  label?: string;
+  height?: string;
+}
+const { id, label = 'Publicidad', height = '90px' } = Astro.props;
+---
+<div
+  id={id}
+  role="complementary"
+  aria-label={label}
+  style={`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: ${height};
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  `}
+>
+  <span>📢 {label}</span>
+  <!-- Google AdSense: insertar script aquí al ser aprobado -->
+</div>

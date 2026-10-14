@@ -1,0 +1,51 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AdPlaceholder from '../components/AdPlaceholder.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  schema?: object;
+  toolName: string;
+  toolIcon: string;
+  toolTagline: string;
+}
+
+const { title, description, canonical, schema, toolName, toolIcon, toolTagline } = Astro.props;
+---
+<BaseLayout title={title} description={description} canonical={canonical} schema={schema}>
+  <Header />
+
+  <!-- Banner superior AdSense -->
+  <AdPlaceholder slot="top-ad" id="ad-top-leaderboard" label="Publicidad" height="90px" />
+
+  <main>
+    <!-- Hero de la herramienta -->
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #0f172a 100%); border-bottom: 1px solid var(--border);">
+      <div style="max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 2rem;">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem;">
+          <span style="font-size:2rem;">{toolIcon}</span>
+          <span class="badge badge-green">Gratis · Sin registro</span>
+        </div>
+        <h1 style="font-size:clamp(1.75rem, 4vw, 2.5rem); font-weight:900; margin-bottom:0.5rem;">{toolName}</h1>
+        <p style="color:var(--text-muted); font-size:1.0625rem; max-width:600px;">{toolTagline}</p>
+      </div>
+    </div>
+
+    <!-- Anuncio horizontal medio -->
+    <AdPlaceholder id="ad-mid-horizontal" label="Publicidad" height="100px" />
+
+    <!-- Contenido principal -->
+    <div style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem;">
+      <slot />
+    </div>
+
+    <!-- Anuncio inferior -->
+    <AdPlaceholder id="ad-bottom-rectangle" label="Publicidad" height="250px" />
+  </main>
+
+  <Footer />
+</BaseLayout>

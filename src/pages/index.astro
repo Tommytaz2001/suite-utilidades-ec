@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ToolCard from '../components/ToolCard.astro';
+
+const tools = [
+  {
+    icon: '💳',
+    title: 'Simulador de Crédito Ecuador',
+    description: 'Calcula cuotas con el sistema Francés o Alemán. Tasas referenciales BCE. Tabla de amortización y exportar a CSV.',
+    href: '/simulador-credito-ecuador/',
+    badge: 'Nuevo',
+  },
+  {
+    icon: '🧮',
+    title: 'Calculadora Laboral Ecuador',
+    description: 'Décimo tercero, décimo cuarto, fondos de reserva IESS y simulación de finiquito según el Código de Trabajo.',
+    href: '/calculadora-laboral-ecuador/',
+  },
+  {
+    icon: '🔥',
+    title: 'Calculadora de Calorías y Macros',
+    description: 'Calcula tu TMB, gasto energético total y distribución de macronutrientes con las fórmulas Mifflin-St Jeor.',
+    href: '/calculadora-deficit-calorico/',
+  },
+  {
+    icon: '🖼️',
+    title: 'Compresor de Imágenes',
+    description: 'Comprime y convierte imágenes a WebP, PNG o JPG directamente en tu navegador. Sin subir archivos a servidores.',
+    href: '/compresor-imagenes/',
+  },
+  {
+    icon: '⚙️',
+    title: 'Formateador JSON y Listas',
+    description: 'Embellece y valida JSON, elimina duplicados, ordena listas y genera consultas SQL IN() al instante.',
+    href: '/formateador-json-limpiador-listas/',
+  },
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Herramientas EC",
+  "url": "https://herramientas-ec.pages.dev",
+  "description": "Suite gratuita de herramientas financieras, laborales y técnicas para Ecuador. Todo el procesamiento ocurre en tu navegador, sin registro.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://herramientas-ec.pages.dev/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+};
+---
+<BaseLayout
+  title="Herramientas EC — Calculadoras Gratis para Ecuador | Sin Registro"
+  description="Suite gratuita con 5 herramientas de utilidad: Simulador de crédito, calculadora laboral IESS, calorías y macros, compresor de imágenes y formateador JSON. Todo en tu navegador, sin registro."
+  schema={schema}
+>
+  <Header />
+
+  <!-- Hero -->
+  <section style="background: linear-gradient(135deg, #0f172a 0%, #064e3b 60%, #0f172a 100%); padding: 5rem 1.5rem 4rem; text-align:center; position:relative; overflow:hidden;">
+    <!-- Decoración de fondo -->
+    <div style="position:absolute; top:0; left:0; right:0; bottom:0; background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 70%); pointer-events:none;"></div>
+
+    <div style="position:relative; max-width:750px; margin:0 auto;">
+      <span class="badge badge-green" style="margin-bottom:1.25rem; display:inline-flex;">⚡ 5 herramientas · 100% gratis · Sin registro</span>
+      <h1 style="font-size:clamp(2.25rem, 6vw, 3.5rem); font-weight:900; margin-bottom:1rem; line-height:1.1;">
+        Herramientas Útiles<br />
+        <span style="background:linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">para Ecuador</span>
+      </h1>
+      <p style="color:var(--text-muted); font-size:1.125rem; line-height:1.7; margin-bottom:2rem; max-width:580px; margin-left:auto; margin-right:auto;">
+        Calculadoras financieras, laborales y técnicas. Todo el procesamiento ocurre en <strong style="color:var(--text);">tu navegador</strong> — tus datos nunca salen de tu dispositivo.
+      </p>
+
+      <!-- Buscador -->
+      <div style="max-width:420px; margin:0 auto; position:relative;">
+        <input
+          type="search"
+          id="search-tools"
+          placeholder="Buscar herramienta..."
+          class="form-input"
+          style="padding-left:2.75rem; font-size:1rem;"
+          autocomplete="off"
+        />
+        <svg style="position:absolute; left:0.875rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid de herramientas -->
+  <main style="max-width:1100px; margin:0 auto; padding:3rem 1.5rem;">
+    <div id="tools-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+      {tools.map(t => (
+        <ToolCard {...t} />
+      ))}
+    </div>
+
+    <div id="no-results" style="display:none; text-align:center; padding:3rem; color:var(--text-muted);">
+      <p style="font-size:2rem; margin-bottom:0.5rem;">🔍</p>
+      <p>No se encontraron herramientas. Intenta con otra búsqueda.</p>
+    </div>
+
+    <!-- Propuesta de valor -->
+    <section style="margin-top:4rem; padding-top:3rem; border-top:1px solid var(--border);">
+      <h2 style="font-size:1.5rem; font-weight:800; text-align:center; margin-bottom:2rem;">¿Por qué usar Herramientas EC?</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem;">
+        {[
+          { icon:'🔒', title:'100% Privado', desc:'Tus datos nunca salen de tu navegador. Cero servidores, cero base de datos.' },
+          { icon:'⚡', title:'Instantáneo', desc:'Sin tiempos de carga. Los cálculos son inmediatos con JavaScript nativo.' },
+          { icon:'🇪🇨', title:'Hecho para Ecuador', desc:'Tasas BCE, código laboral, IESS y regulaciones locales actualizadas.' },
+          { icon:'💰', title:'Completamente Gratis', desc:'Sin suscripciones, sin registro, sin límites de uso.' },
+        ].map(f => (
+          <div class="card" style="text-align:center; padding:1.5rem;">
+            <div style="font-size:2rem; margin-bottom:0.75rem;">{f.icon}</div>
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:0.5rem;">{f.title}</h3>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin:0; line-height:1.6;">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-tools') as HTMLInputElement;
+  const toolsGrid = document.getElementById('tools-grid')!;
+  const noResults = document.getElementById('no-results')!;
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    const cards = toolsGrid.querySelectorAll('.tool-card-link');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const text = card.textContent?.toLowerCase() ?? '';
+      const match = q === '' || text.includes(q);
+      (card as HTMLElement).style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  });
+</script>

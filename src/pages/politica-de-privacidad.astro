@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Política de Privacidad | Herramientas EC';
+const description = 'Política de privacidad de Herramientas EC. Información sobre el uso de cookies, datos de Google AdSense y derechos del usuario.';
+const fecha = '13 de octubre de 2026';
+---
+<BaseLayout title={title} description={description} canonical="https://herramientas-ec.pages.dev/politica-de-privacidad/">
+  <Header />
+  <main style="max-width:800px; margin:0 auto; padding:3rem 1.5rem;">
+    <h1 style="font-size:2rem; font-weight:900; margin-bottom:0.5rem;">Política de Privacidad</h1>
+    <p style="color:var(--text-muted); margin-bottom:2rem;">Última actualización: {fecha}</p>
+
+    <div class="prose-dark">
+      <p>
+        Bienvenido a <strong>Herramientas EC</strong> (en adelante, "el Sitio"). El respeto por tu privacidad es fundamental para nosotros. Esta Política de Privacidad explica qué información recopilamos, cómo la utilizamos y cuáles son tus derechos al respecto.
+      </p>
+
+      <h2>1. Información que Recopilamos</h2>
+      <p>
+        <strong>Herramientas EC no solicita ni almacena datos personales identificables</strong> (nombre, correo, número de cédula). Todo el procesamiento de datos ingresados en nuestras calculadoras y herramientas ocurre <strong>exclusivamente en tu navegador</strong> y nunca se envía a nuestros servidores.
+      </p>
+      <p>Sin embargo, como sitio web estándar, recopilamos automáticamente:</p>
+      <ul>
+        <li><strong>Datos de uso anónimos</strong> a través de Google Analytics (en caso de habilitarse): páginas visitadas, tiempo en sesión, tipo de dispositivo.</li>
+        <li><strong>Cookies de publicidad</strong> gestionadas por Google AdSense para mostrar anuncios relevantes.</li>
+      </ul>
+
+      <h2>2. Uso de Cookies y Google AdSense</h2>
+      <p>
+        Utilizamos <strong>Google AdSense</strong> para mostrar anuncios en el Sitio. Google, como proveedor tercero, usa cookies (incluida la cookie <strong>DART</strong>) para mostrar anuncios basados en visitas anteriores del usuario a este y otros sitios web.
+      </p>
+      <p>
+        Puedes desactivar el uso de la cookie DART visitando la <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener" style="color:var(--accent);">Política de Privacidad de Publicidad de Google</a>.
+      </p>
+      <p>
+        Para más información sobre cómo Google usa los datos cuando visitas sitios que utilizan sus servicios, consulta: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">Política de Privacidad de Google</a>.
+      </p>
+
+      <h2>3. Proveedores de Publicidad de Terceros</h2>
+      <p>
+        Los servidores de anuncios de terceros o las redes publicitarias de terceros utilizan tecnologías como cookies, JavaScript o Web Beacons que son usados en sus respectivos anuncios y vínculos que aparecen en Herramientas EC, que son enviados directamente a tu navegador. Ellos reciben automáticamente tu dirección IP cuando esto sucede.
+      </p>
+      <p>
+        Herramientas EC no tiene acceso ni control sobre las cookies que utilizan los anunciantes de terceros.
+      </p>
+
+      <h2>4. Derechos del Usuario (RGPD / LOPD Ecuador)</h2>
+      <p>Tienes derecho a:</p>
+      <ul>
+        <li>Acceder, rectificar o suprimir tus datos personales.</li>
+        <li>Oponerte al tratamiento de datos con fines publicitarios.</li>
+        <li>Retirar el consentimiento en cualquier momento.</li>
+      </ul>
+      <p>Para ejercer estos derechos, contáctanos a través de nuestra <a href="/contacto/" style="color:var(--accent);">página de contacto</a>.</p>
+
+      <h2>5. Seguridad de los Datos</h2>
+      <p>
+        Dado que ningún dato personal es enviado ni almacenado por Herramientas EC, el riesgo de vulneración de datos de nuestros usuarios es mínimo. Todo el tráfico del sitio se sirve a través de <strong>HTTPS con certificado SSL</strong> gestionado por Cloudflare.
+      </p>
+
+      <h2>6. Cambios a Esta Política</h2>
+      <p>
+        Podemos actualizar nuestra Política de Privacidad ocasionalmente. Notificaremos cualquier cambio publicando la nueva política en esta página con la fecha de actualización correspondiente.
+      </p>
+
+      <h2>7. Contacto</h2>
+      <p>
+        Si tienes preguntas sobre esta política, visita nuestra <a href="/contacto/" style="color:var(--accent);">página de contacto</a>.
+      </p>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
