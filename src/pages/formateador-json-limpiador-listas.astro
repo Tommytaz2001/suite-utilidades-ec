@@ -1,0 +1,982 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+
+const faqs = [
+  {
+    question: '¿Mis datos, JSONs o listas se envían a algún servidor externo?',
+    answer: 'Absolutamente no. Todo el procesamiento, validación, formateo y manipulación de texto se ejecuta 100% en la memoria RAM de tu navegador web mediante JavaScript nativo. Tus credenciales, tokens, listas de clientes, bases de datos o archivos confidenciales jamás salen de tu dispositivo.'
+  },
+  {
+    question: '¿Qué diferencia hay entre embellecer (prettify) y minificar un JSON?',
+    answer: 'Embellecer (prettify) añade sangría estructurada (2 o 4 espacios) y saltos de línea para que el código sea fácil de leer y depurar por humanos. Minificar, por el contrario, elimina todos los espacios en blanco, tabulaciones y saltos innecesarios, reduciendo el peso en bytes para optimizar la transferencia en APIs y producción.'
+  },
+  {
+    question: '¿Cómo funciona la reparación automática de JSON?',
+    answer: 'Nuestra función de reparación rápida soluciona los errores más frecuentes que impiden que JSON.parse() procese el texto: reemplaza comillas simples por comillas dobles estándar, envuelve claves de objetos que no tienen comillas y elimina comas finales sobrantes (trailing commas) en arreglos y objetos.'
+  },
+  {
+    question: '¿Para qué sirve el generador SQL IN()?',
+    answer: 'Permite transformar al instante una lista de códigos, IDs, cédulas o correos electrónicos en una cláusula SQL válida, por ejemplo: WHERE id IN (\'A1\', \'B2\', \'C3\') o con números sin comillas IN (101, 102, 103). Ahorra horas de edición manual a desarrolladores y analistas de bases de datos.'
+  },
+  {
+    question: '¿Existe algún límite en la cantidad de líneas o tamaño de archivo?',
+    answer: 'No existe ningún límite artificial impuesto por nuestra plataforma. El rendimiento depende exclusivamente de la potencia y memoria RAM de tu equipo. Puede procesar miles de líneas o archivos JSON de varios megabytes sin inconvenientes.'
+  },
+  {
+    question: '¿Cómo puedo convertir un JSON a formato CSV?',
+    answer: 'Si tu JSON es un arreglo de objetos (por ejemplo, una lista de usuarios o transacciones), la herramienta detecta automáticamente las propiedades y genera una tabla descargable en formato CSV compatible con Microsoft Excel y Google Sheets.'
+  }
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(f => ({
+    "@type": "Question",
+    "name": f.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.answer
+    }
+  }))
+};
+---
+<ToolLayout
+  title="Formateador JSON y Limpiador de Listas Online Gratis | SQL IN() y Deduplicador"
+  description="Valida, embellece y minifica JSON en segundos. Limpia listas de texto, elimina duplicados, ordena y genera consultas SQL IN(). 100% privado en tu navegador, sin registro."
+  canonical="https://herramientas-ec.pages.dev/formateador-json-limpiador-listas/"
+  schema={schema}
+  toolName="Formateador JSON y Limpiador de Listas"
+  toolIcon="⚙️"
+  toolTagline="Valida y embellece JSON, repara errores comunes, limpia y deduplica listas y crea cláusulas SQL IN() al instante sin salir de tu navegador."
+>
+
+  <!-- PESTAÑAS PRINCIPALES DE NAVEGACIÓN -->
+  <div style="display:flex; justify-content:center; margin-bottom:2rem;">
+    <div style="display:inline-flex; background:rgba(30,41,59,0.9); padding:0.35rem; border-radius:0.75rem; border:1px solid var(--border); box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+      <button
+        type="button"
+        id="tab-json"
+        class="tab-btn active"
+        style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 1.4rem; border-radius:0.5rem; font-weight:700; font-size:0.9375rem; border:none; cursor:pointer; transition:all 0.2s ease;"
+      >
+        <span>🧩</span> Formateador & Validador JSON
+      </button>
+      <button
+        type="button"
+        id="tab-list"
+        class="tab-btn"
+        style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 1.4rem; border-radius:0.5rem; font-weight:700; font-size:0.9375rem; border:none; cursor:pointer; transition:all 0.2s ease; background:transparent; color:var(--text-muted);"
+      >
+        <span>📋</span> Limpiador de Listas & SQL IN()
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: FORMATEADOR Y VALIDADOR JSON -->
+  <div id="section-json" class="tool-section">
+    
+    <!-- Barra Superior de Acciones JSON -->
+    <div class="card" style="margin-bottom:1.25rem; padding:1rem 1.25rem;">
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; justify-content:space-between;">
+        
+        <!-- Acciones Principales -->
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+          <div style="display:flex; align-items:center; gap:0.4rem; margin-right:0.5rem;">
+            <label for="json-indent" style="font-size:0.8125rem; color:var(--text-muted); font-weight:600;">Sangría:</label>
+            <select id="json-indent" class="select-small" style="padding:0.4rem 0.6rem; font-size:0.8125rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+              <option value="2">2 espacios</option>
+              <option value="4">4 espacios</option>
+              <option value="tab">Tabulación</option>
+            </select>
+          </div>
+
+          <button type="button" id="btn-json-prettify" class="btn-primary" style="padding:0.45rem 0.9rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>✨</span> Embellecer
+          </button>
+          <button type="button" id="btn-json-minify" class="btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>⚡</span> Minificar
+          </button>
+          <button type="button" id="btn-json-fix" class="btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;" title="Corrige comillas simples y comas sobrantes">
+            <span>🔧</span> Reparar
+          </button>
+          <button type="button" id="btn-json-csv" class="btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;" title="Convierte arreglo de objetos a CSV">
+            <span>📊</span> A CSV
+          </button>
+        </div>
+
+        <!-- Botones Secundarios: Copiar, Descargar, Muestra, Limpiar -->
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+          <button type="button" id="btn-json-sample" class="btn-secondary" style="padding:0.45rem 0.75rem; font-size:0.8125rem;">
+            Cargar Ejemplo
+          </button>
+          <button type="button" id="btn-json-copy" class="btn-secondary" style="padding:0.45rem 0.75rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>📋</span> Copiar
+          </button>
+          <button type="button" id="btn-json-download" class="btn-secondary" style="padding:0.45rem 0.75rem; font-size:0.8125rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>📥</span> Descargar .json
+          </button>
+          <button type="button" id="btn-json-clear" class="btn-secondary" style="padding:0.45rem 0.75rem; font-size:0.8125rem; color:#ef4444;" title="Limpiar campos">
+            🗑️
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Barra de Estado / Diagnóstico JSON -->
+    <div id="json-status-bar" style="margin-bottom:1rem; padding:0.75rem 1.25rem; border-radius:0.75rem; background:rgba(30,41,59,0.5); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+      <div id="json-status-indicator" style="display:flex; align-items:center; gap:0.6rem; font-size:0.875rem; font-weight:600;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#94a3b8;"></span>
+        <span style="color:var(--text-muted);">Esperando entrada de JSON...</span>
+      </div>
+      <div id="json-metrics" style="display:flex; gap:1.25rem; font-size:0.8125rem; color:var(--text-muted);">
+        <span>Líneas: <strong id="json-stat-lines" style="color:var(--text);">0</strong></span>
+        <span>Caracteres: <strong id="json-stat-chars" style="color:var(--text);">0</strong></span>
+        <span>Tamaño: <strong id="json-stat-size" style="color:var(--text);">0 B</strong></span>
+      </div>
+    </div>
+
+    <!-- Área de Editores JSON: Entrada y Salida -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;" class="editor-grid">
+      
+      <!-- Panel de Entrada -->
+      <div class="card" style="display:flex; flex-direction:column; padding:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h2 style="font-size:1.0625rem; font-weight:700; color:var(--text); margin:0;">JSON Original / Entrada</h2>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Pega o escribe tu JSON</span>
+        </div>
+        <textarea
+          id="json-input"
+          class="code-editor"
+          placeholder='Pega aquí tu código JSON o arrastra un archivo .json...&#10;&#10;Ejemplo:&#10;{&#10;  "id": 1,&#10;  "nombre": "Herramientas EC",&#10;  "activo": true&#10;}'
+          rows="18"
+          spellcheck="false"
+          style="width:100%; flex:1; min-height:420px; resize:vertical; background:#0b1120; border:1px solid var(--border); border-radius:0.5rem; color:#e2e8f0; font-family:'Fira Code', 'Consolas', monospace; font-size:0.875rem; line-height:1.5; padding:1rem; outline:none; transition:border-color 0.2s ease;"
+        ></textarea>
+      </div>
+
+      <!-- Panel de Salida -->
+      <div class="card" style="display:flex; flex-direction:column; padding:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h2 style="font-size:1.0625rem; font-weight:700; color:var(--text); margin:0;">Resultado Formateado</h2>
+          <span id="output-badge" class="badge" style="font-size:0.75rem; display:none;">Formateado</span>
+        </div>
+        <textarea
+          id="json-output"
+          class="code-editor"
+          readonly
+          placeholder="Aquí aparecerá el resultado embellecido, minificado o convertido..."
+          rows="18"
+          spellcheck="false"
+          style="width:100%; flex:1; min-height:420px; resize:vertical; background:#0b1120; border:1px solid var(--border); border-radius:0.5rem; color:#34d399; font-family:'Fira Code', 'Consolas', monospace; font-size:0.875rem; line-height:1.5; padding:1rem; outline:none;"
+        ></textarea>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SECCIÓN 2: LIMPIADOR DE LISTAS & GENERADOR SQL IN() -->
+  <div id="section-list" class="tool-section" style="display:none;">
+    
+    <!-- Opciones y Controles de Manipulación de Listas -->
+    <div class="card" style="margin-bottom:1.5rem; padding:1.25rem;">
+      <h2 style="font-size:1.125rem; font-weight:700; margin-bottom:1rem; color:var(--text);">Opciones de Transformación</h2>
+      
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
+        
+        <!-- Grupo 1: Limpieza básica -->
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;">
+            Limpieza y Filtros
+          </label>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text); cursor:pointer;">
+              <input type="checkbox" id="chk-dedup" checked style="accent-color:var(--accent);" />
+              Eliminar duplicados
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text); cursor:pointer;">
+              <input type="checkbox" id="chk-trim" checked style="accent-color:var(--accent);" />
+              Quitar espacios en extremos (Trim)
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text); cursor:pointer;">
+              <input type="checkbox" id="chk-empty" checked style="accent-color:var(--accent);" />
+              Eliminar líneas vacías
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text); cursor:pointer;">
+              <input type="checkbox" id="chk-case-sensitive" style="accent-color:var(--accent);" />
+              Deduplicar sensible a mayúsculas
+            </label>
+          </div>
+        </div>
+
+        <!-- Grupo 2: Ordenamiento y Caja -->
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;">
+            Orden y Formato
+          </label>
+          <div style="display:flex; flex-direction:column; gap:0.6rem;">
+            <div>
+              <label for="sel-sort" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">Ordenar por:</label>
+              <select id="sel-sort" class="select-small" style="width:100%; padding:0.4rem 0.6rem; font-size:0.8125rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <option value="none">Sin ordenar (mantener original)</option>
+                <option value="az">Alfabético A ➔ Z</option>
+                <option value="za">Alfabético Z ➔ A</option>
+                <option value="num-asc">Numérico ascendente (1, 2, 10)</option>
+                <option value="num-desc">Numérico descendente (10, 2, 1)</option>
+                <option value="len-asc">Longitud de texto (corto a largo)</option>
+                <option value="shuffle">Aleatorio (Desordenar)</option>
+              </select>
+            </div>
+            <div>
+              <label for="sel-case" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">Convertir mayúsculas/minúsculas:</label>
+              <select id="sel-case" class="select-small" style="width:100%; padding:0.4rem 0.6rem; font-size:0.8125rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <option value="original">Sin cambios</option>
+                <option value="lower">minúsculas (lowercase)</option>
+                <option value="upper">MAYÚSCULAS (UPPERCASE)</option>
+                <option value="title">Tipo Título (Capitalizar Palabras)</option>
+                <option value="snake">snake_case</option>
+                <option value="kebab">kebab-case</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grupo 3: Cláusula SQL IN() -->
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;">
+            Generador SQL IN()
+          </label>
+          <div style="display:flex; flex-direction:column; gap:0.6rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text); cursor:pointer;">
+              <input type="checkbox" id="chk-sql-mode" style="accent-color:var(--accent);" />
+              <strong>Activar modo SQL IN(...)</strong>
+            </label>
+            <div id="sql-options" style="display:flex; flex-direction:column; gap:0.4rem; opacity:0.6; pointer-events:none;">
+              <select id="sel-sql-quotes" class="select-small" style="width:100%; padding:0.35rem 0.6rem; font-size:0.75rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <option value="single">Comillas simples 'valor' (Textos/IDs)</option>
+                <option value="none">Sin comillas 123 (Números/Enteros)</option>
+                <option value="double">Comillas dobles "valor"</option>
+              </select>
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-muted); cursor:pointer;">
+                <input type="checkbox" id="chk-sql-where" style="accent-color:var(--accent);" />
+                Incluir "WHERE campo IN (...)"
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grupo 4: Prefijo, Sufijo y Separador -->
+        <div>
+          <label style="display:block; font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;">
+            Prefijo / Sufijo / Delimitador
+          </label>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+              <input type="text" id="txt-prefix" placeholder="Prefijo..." style="padding:0.35rem 0.5rem; font-size:0.75rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);" />
+              <input type="text" id="txt-suffix" placeholder="Sufijo..." style="padding:0.35rem 0.5rem; font-size:0.75rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);" />
+            </div>
+            <div>
+              <label for="sel-delimiter" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">Separador de salida:</label>
+              <select id="sel-delimiter" class="select-small" style="width:100%; padding:0.35rem 0.6rem; font-size:0.75rem; border-radius:0.4rem; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <option value="newline">Salto de línea (\n)</option>
+                <option value="comma-space">Coma y espacio (, )</option>
+                <option value="comma">Solo coma (,)</option>
+                <option value="semicolon">Punto y coma (; )</option>
+                <option value="pipe">Barra vertical ( | )</option>
+                <option value="tab">Tabulador (\t)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones de Acción de Lista -->
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; justify-content:space-between; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);">
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" id="btn-list-process" class="btn-primary" style="padding:0.5rem 1.25rem; font-size:0.875rem; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>⚡</span> Procesar Lista
+          </button>
+          <button type="button" id="btn-list-sample" class="btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.875rem;">
+            Cargar Muestra
+          </button>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" id="btn-list-copy" class="btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.875rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>📋</span> Copiar Resultado
+          </button>
+          <button type="button" id="btn-list-download" class="btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.875rem; display:inline-flex; align-items:center; gap:0.35rem;">
+            <span>📥</span> Descargar .txt
+          </button>
+          <button type="button" id="btn-list-clear" class="btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.875rem; color:#ef4444;" title="Limpiar lista">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Estadísticas de Lista en Vivo -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.25rem;" class="list-stats-grid">
+      <div class="card" style="padding:0.875rem 1rem; text-align:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; text-transform:uppercase;">Líneas Entrada</span>
+        <strong id="stat-list-orig" style="font-size:1.35rem; color:var(--text);">0</strong>
+      </div>
+      <div class="card" style="padding:0.875rem 1rem; text-align:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; text-transform:uppercase;">Líneas Salida</span>
+        <strong id="stat-list-clean" style="font-size:1.35rem; color:var(--accent);">0</strong>
+      </div>
+      <div class="card" style="padding:0.875rem 1rem; text-align:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; text-transform:uppercase;">Duplicados Borrados</span>
+        <strong id="stat-list-dups" style="font-size:1.35rem; color:#f59e0b;">0</strong>
+      </div>
+      <div class="card" style="padding:0.875rem 1rem; text-align:center;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; text-transform:uppercase;">Caracteres</span>
+        <strong id="stat-list-chars" style="font-size:1.35rem; color:var(--text);">0</strong>
+      </div>
+    </div>
+
+    <!-- Área de Trabajo de Listas (Entrada y Salida) -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;" class="editor-grid">
+      
+      <!-- Entrada de Lista -->
+      <div class="card" style="display:flex; flex-direction:column; padding:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h2 style="font-size:1.0625rem; font-weight:700; color:var(--text); margin:0;">Lista Original</h2>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Pega elementos línea por línea</span>
+        </div>
+        <textarea
+          id="list-input"
+          class="code-editor"
+          placeholder="Pega aquí tu lista de texto (correos, IDs, números, nombres, etc.)...&#10;&#10;Ejemplo:&#10;juan@ejemplo.ec&#10;maria@ejemplo.ec&#10;juan@ejemplo.ec&#10;pedro@ejemplo.ec"
+          rows="16"
+          spellcheck="false"
+          style="width:100%; flex:1; min-height:380px; resize:vertical; background:#0b1120; border:1px solid var(--border); border-radius:0.5rem; color:#e2e8f0; font-family:'Fira Code', 'Consolas', monospace; font-size:0.875rem; line-height:1.5; padding:1rem; outline:none;"
+        ></textarea>
+      </div>
+
+      <!-- Salida de Lista -->
+      <div class="card" style="display:flex; flex-direction:column; padding:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h2 style="font-size:1.0625rem; font-weight:700; color:var(--text); margin:0;">Lista Limpia / Consulta SQL</h2>
+          <span id="list-status-badge" class="badge badge-green" style="font-size:0.75rem; display:none;">Procesada</span>
+        </div>
+        <textarea
+          id="list-output"
+          class="code-editor"
+          readonly
+          placeholder="El resultado limpio, ordenado, sin duplicados o formateado para SQL aparecerá aquí..."
+          rows="16"
+          spellcheck="false"
+          style="width:100%; flex:1; min-height:380px; resize:vertical; background:#0b1120; border:1px solid var(--border); border-radius:0.5rem; color:#34d399; font-family:'Fira Code', 'Consolas', monospace; font-size:0.875rem; line-height:1.5; padding:1rem; outline:none;"
+        ></textarea>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- AVISO DE PRIVACIDAD CLIENT-SIDE -->
+  <div style="display:flex; align-items:center; gap:0.75rem; margin-top:2rem; padding:1rem 1.25rem; background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:0.75rem;">
+    <span style="font-size:1.5rem;">🔒</span>
+    <span style="font-size:0.875rem; color:var(--text-muted); line-height:1.5;">
+      <strong style="color:var(--text);">Máxima Seguridad y Privacidad:</strong> Todo el procesamiento de JSON y listas ocurre exclusivamente en la memoria de tu navegador. Ningún dato sensible, contraseña, API key o base de datos se transmite a ningún servidor de internet.
+    </span>
+  </div>
+
+  <!-- GUÍA TÉCNICA Y ARTÍCULO SEO -->
+  <div class="card prose-dark" style="margin-top:2.5rem; padding:2.5rem 2rem;">
+    <h2 style="font-size:1.75rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
+      Guía Completa: Manipulación de JSON, Limpieza de Datos y Consultas SQL IN()
+    </h2>
+
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1.5rem;">
+      En el desarrollo de software, análisis de datos, administración de bases de datos y marketing digital, la manipulación de texto no estructurado representa una de las tareas más repetitivas. Trabajar con respuestas de APIs mal formateadas o listas desordenadas en hojas de cálculo consume horas de trabajo manual. Esta suite reúne las funciones más demandadas por profesionales en una sola pantalla rápida y segura.
+    </p>
+
+    <h3 style="font-size:1.25rem; font-weight:700; color:var(--text); margin-top:1.5rem; margin-bottom:0.75rem;">
+      1. ¿Qué es JSON y cuáles son los errores de sintaxis más frecuentes?
+    </h3>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1rem;">
+      <strong>JSON</strong> (JavaScript Object Notation) es el estándar universal (RFC 8259) para el intercambio de datos en la web moderna. A pesar de su simplicidad, el analizador estricto estándar rechaza códigos que contengan pequeños descuidos de sintaxis:
+    </p>
+    <ul style="color:var(--text-muted); line-height:1.7; margin-bottom:1.5rem; padding-left:1.5rem;">
+      <li><strong>Comas finales o huérfanas (Trailing commas):</strong> Dejar una coma al final del último elemento de un arreglo o propiedad de un objeto (ej. <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">["a", "b",]</code>) causa un error fatal en la mayoría de analizadores.</li>
+      <li><strong>Comillas simples:</strong> La especificación JSON exige estrictamente el uso de comillas dobles (<code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">"clave": "valor"</code>). El uso de comillas simples es inválido.</li>
+      <li><strong>Claves sin entrecomillar:</strong> A diferencia de los objetos literales de JavaScript, las claves en JSON deben estar obligatoriamente entre comillas dobles.</li>
+      <li><strong>Tipos no permitidos:</strong> Valores como <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">undefined</code>, funciones o comentarios no forman parte de la especificación JSON.</li>
+    </ul>
+
+    <h3 style="font-size:1.25rem; font-weight:700; color:var(--text); margin-top:1.5rem; margin-bottom:0.75rem;">
+      2. Optimización y Buenas Prácticas con la Cláusula SQL IN()
+    </h3>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1rem;">
+      El operador SQL <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">IN (...)</code> es una herramienta fundamental en motores relacionales como PostgreSQL, MySQL, SQL Server y Oracle para filtrar registros que coincidan con un conjunto de valores discretos.
+    </p>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1.5rem;">
+      <strong>Consejo de rendimiento:</strong> La mayoría de los motores de bases de datos tienen un límite en la cantidad de literales que pueden evaluarse dentro de un operador <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">IN</code> (por ejemplo, Oracle impone un límite estricto de 1.000 elementos). Si necesitas filtrar listas más grandes, es recomendable cargar los identificadores en una tabla temporal o utilizar una cláusula con <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">INNER JOIN</code> o <code style="background:rgba(15,23,42,0.8); padding:0.2rem 0.4rem; border-radius:0.3rem;">EXISTS</code>.
+    </p>
+
+    <h3 style="font-size:1.25rem; font-weight:700; color:var(--text); margin-top:1.5rem; margin-bottom:0.75rem;">
+      3. Limpieza y Normalización de Listas
+    </h3>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1rem;">
+      Antes de enviar campañas de email marketing o realizar cruces de información contable, es fundamental normalizar los datos:
+    </p>
+    <ul style="color:var(--text-muted); line-height:1.7; padding-left:1.5rem;">
+      <li><strong>Deduplicación:</strong> Elimina registros repetidos para no duplicar costos ni distorsionar métricas estadísticas.</li>
+      <li><strong>Limpieza de espacios invisibles (Trimming):</strong> Los espacios al inicio o final de una cadena suelen provocar fallos silenciosos en búsquedas exactas de bases de datos.</li>
+      <li><strong>Conversión de mayúsculas/minúsculas:</strong> Garantiza que correos o identificadores alfanuméricos se comparen bajo el mismo estándar de formato.</li>
+    </ul>
+  </div>
+
+  <!-- SECCIÓN DE PREGUNTAS FRECUENTES -->
+  <div style="margin-top:2.5rem;">
+    <h2 style="font-size:1.5rem; font-weight:800; color:var(--text); margin-bottom:1.25rem; text-align:center;">
+      Preguntas Frecuentes
+    </h2>
+    <FaqAccordion items={faqs} />
+  </div>
+
+</ToolLayout>
+
+<style>
+  .tab-btn.active {
+    background: var(--accent) !important;
+    color: #0f172a !important;
+  }
+  .code-editor:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+  @media (max-width: 768px) {
+    .editor-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .list-stats-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+</style>
+
+<script>
+  // ==========================================
+  // GESTIÓN DE PESTAÑAS (TABS)
+  // ==========================================
+  const tabJson = document.getElementById('tab-json') as HTMLButtonElement;
+  const tabList = document.getElementById('tab-list') as HTMLButtonElement;
+  const secJson = document.getElementById('section-json') as HTMLDivElement;
+  const secList = document.getElementById('section-list') as HTMLDivElement;
+
+  function switchTab(mode: 'json' | 'list') {
+    if (mode === 'json') {
+      tabJson.classList.add('active');
+      tabJson.style.background = 'var(--accent)';
+      tabJson.style.color = '#0f172a';
+      tabList.classList.remove('active');
+      tabList.style.background = 'transparent';
+      tabList.style.color = 'var(--text-muted)';
+      secJson.style.display = 'block';
+      secList.style.display = 'none';
+    } else {
+      tabList.classList.add('active');
+      tabList.style.background = 'var(--accent)';
+      tabList.style.color = '#0f172a';
+      tabJson.classList.remove('active');
+      tabJson.style.background = 'transparent';
+      tabJson.style.color = 'var(--text-muted)';
+      secJson.style.display = 'none';
+      secList.style.display = 'block';
+    }
+  }
+
+  tabJson.addEventListener('click', () => switchTab('json'));
+  tabList.addEventListener('click', () => switchTab('list'));
+
+  // ==========================================
+  // MÓDULO 1: FORMATEADOR Y VALIDADOR JSON
+  // ==========================================
+  const jsonInput = document.getElementById('json-input') as HTMLTextAreaElement;
+  const jsonOutput = document.getElementById('json-output') as HTMLTextAreaElement;
+  const jsonIndent = document.getElementById('json-indent') as HTMLSelectElement;
+  const statusIndicator = document.getElementById('json-status-indicator') as HTMLDivElement;
+  const statLines = document.getElementById('json-stat-lines') as HTMLElement;
+  const statChars = document.getElementById('json-stat-chars') as HTMLElement;
+  const statSize = document.getElementById('json-stat-size') as HTMLElement;
+  const outputBadge = document.getElementById('output-badge') as HTMLElement;
+
+  const btnPrettify = document.getElementById('btn-json-prettify') as HTMLButtonElement;
+  const btnMinify = document.getElementById('btn-json-minify') as HTMLButtonElement;
+  const btnFix = document.getElementById('btn-json-fix') as HTMLButtonElement;
+  const btnCsv = document.getElementById('btn-json-csv') as HTMLButtonElement;
+  const btnSample = document.getElementById('btn-json-sample') as HTMLButtonElement;
+  const btnCopy = document.getElementById('btn-json-copy') as HTMLButtonElement;
+  const btnDownload = document.getElementById('btn-json-download') as HTMLButtonElement;
+  const btnClear = document.getElementById('btn-json-clear') as HTMLButtonElement;
+
+  function getIndentString(): string | number {
+    const val = jsonIndent.value;
+    if (val === 'tab') return '\t';
+    return parseInt(val, 10) || 2;
+  }
+
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Validación y actualización de estado en tiempo real
+  function validateJsonLive() {
+    const raw = jsonInput.value.trim();
+    const bytes = new Blob([raw]).size;
+    const lines = raw ? raw.split('\n').length : 0;
+    const chars = raw.length;
+
+    statLines.textContent = String(lines);
+    statChars.textContent = String(chars);
+    statSize.textContent = formatBytes(bytes);
+
+    if (!raw) {
+      statusIndicator.innerHTML = `
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#94a3b8;"></span>
+        <span style="color:var(--text-muted);">Esperando entrada de JSON...</span>
+      `;
+      outputBadge.style.display = 'none';
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      const isArray = Array.isArray(parsed);
+      const keysCount = typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : 1;
+      const typeLabel = isArray ? `Arreglo (${parsed.length} elementos)` : `Objeto (${keysCount} claves)`;
+
+      statusIndicator.innerHTML = `
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+        <span style="color:#10b981; font-weight:700;">JSON Válido</span>
+        <span style="color:var(--text-muted); font-size:0.8125rem;">· ${typeLabel}</span>
+      `;
+    } catch (err: any) {
+      statusIndicator.innerHTML = `
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ef4444; box-shadow:0 0 8px #ef4444;"></span>
+        <span style="color:#ef4444; font-weight:700;">Error de Sintaxis:</span>
+        <span style="color:#f87171; font-size:0.8125rem;">${err.message}</span>
+      `;
+      outputBadge.style.display = 'none';
+    }
+  }
+
+  jsonInput.addEventListener('input', validateJsonLive);
+
+  // Acción: Embellecer (Prettify)
+  btnPrettify.addEventListener('click', () => {
+    const raw = jsonInput.value.trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      const indent = getIndentString();
+      const formatted = JSON.stringify(parsed, null, indent);
+      jsonOutput.value = formatted;
+      jsonOutput.style.color = '#34d399';
+      outputBadge.textContent = 'Embellecido';
+      outputBadge.className = 'badge badge-green';
+      outputBadge.style.display = 'inline-block';
+    } catch (err: any) {
+      jsonOutput.value = `Error al formatear JSON:\n\n${err.message}`;
+      jsonOutput.style.color = '#f87171';
+      outputBadge.textContent = 'Error';
+      outputBadge.className = 'badge';
+      outputBadge.style.background = '#ef4444';
+      outputBadge.style.color = '#fff';
+      outputBadge.style.display = 'inline-block';
+    }
+  });
+
+  // Acción: Minificar
+  btnMinify.addEventListener('click', () => {
+    const raw = jsonInput.value.trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      const minified = JSON.stringify(parsed);
+      jsonOutput.value = minified;
+      jsonOutput.style.color = '#38bdf8';
+      outputBadge.textContent = 'Minificado';
+      outputBadge.className = 'badge';
+      outputBadge.style.background = '#0284c7';
+      outputBadge.style.color = '#fff';
+      outputBadge.style.display = 'inline-block';
+    } catch (err: any) {
+      jsonOutput.value = `Error al minificar JSON:\n\n${err.message}`;
+      jsonOutput.style.color = '#f87171';
+    }
+  });
+
+  // Acción: Reparar errores comunes de JSON (comillas simples, trailing commas)
+  btnFix.addEventListener('click', () => {
+    let raw = jsonInput.value;
+    if (!raw.trim()) return;
+
+    // 1. Quitar comentarios JS estilo // y /* */
+    let fixed = raw.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+
+    // 2. Reemplazar comillas simples con dobles en valores y claves
+    fixed = fixed.replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"');
+
+    // 3. Agregar comillas a claves no entrecomilladas { foo: 1 } -> { "foo": 1 }
+    fixed = fixed.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+
+    // 4. Eliminar trailing commas en arreglos y objetos
+    fixed = fixed.replace(/,\s*([\]}])/g, '$1');
+
+    try {
+      const parsed = JSON.parse(fixed);
+      const indent = getIndentString();
+      jsonInput.value = JSON.stringify(parsed, null, indent);
+      validateJsonLive();
+      btnPrettify.click();
+      alert('¡JSON reparado y formateado con éxito!');
+    } catch (err: any) {
+      alert(`No se pudo reparar automáticamente todo el JSON:\n${err.message}`);
+    }
+  });
+
+  // Acción: Convertir a CSV (si es arreglo de objetos)
+  btnCsv.addEventListener('click', () => {
+    const raw = jsonInput.value.trim();
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        alert('Para convertir a CSV, el JSON debe ser un arreglo de objetos (ej. [ { "id": 1, "nombre": "Juan" }, ... ]).');
+        return;
+      }
+
+      // Obtener todas las columnas únicas
+      const headers = Array.from(new Set(parsed.flatMap(obj => typeof obj === 'object' && obj !== null ? Object.keys(obj) : [])));
+      if (headers.length === 0) {
+        alert('No se encontraron propiedades u objetos válidos para convertir a columnas CSV.');
+        return;
+      }
+
+      const csvRows = [];
+      csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','));
+
+      for (const item of parsed) {
+        const row = headers.map(h => {
+          const val = item ? (item as any)[h] : '';
+          const str = val === null || val === undefined ? '' : typeof val === 'object' ? JSON.stringify(val) : String(val);
+          return `"${str.replace(/"/g, '""')}"`;
+        });
+        csvRows.push(row.join(','));
+      }
+
+      const csvContent = csvRows.join('\n');
+      jsonOutput.value = csvContent;
+      jsonOutput.style.color = '#fbbf24';
+      outputBadge.textContent = 'CSV Generado';
+      outputBadge.className = 'badge';
+      outputBadge.style.background = '#d97706';
+      outputBadge.style.color = '#fff';
+      outputBadge.style.display = 'inline-block';
+    } catch (err: any) {
+      alert(`Error al procesar JSON para CSV: ${err.message}`);
+    }
+  });
+
+  // Cargar Ejemplo de Prueba JSON
+  btnSample.addEventListener('click', () => {
+    const sample = {
+      plataforma: "Herramientas EC",
+      version: "1.0.0",
+      pais: "Ecuador",
+      privacidad: "100% client-side",
+      modulos: [
+        { id: "credito", nombre: "Simulador de Crédito", estado: "activo" },
+        { id: "laboral", nombre: "Calculadora Laboral IESS", estado: "activo" },
+        { id: "calorias", nombre: "Calculadora de Déficit Calórico", estado: "activo" },
+        { id: "compresor", nombre: "Compresor de Imágenes WebP", estado: "activo" },
+        { id: "json", nombre: "Formateador JSON y Listas", estado: "activo" }
+      ],
+      estadisticas: {
+        totalHerramientas: 5,
+        gratuito: true
+      }
+    };
+    jsonInput.value = JSON.stringify(sample);
+    validateJsonLive();
+    btnPrettify.click();
+  });
+
+  // Copiar Resultado al Portapapeles
+  btnCopy.addEventListener('click', async () => {
+    const text = jsonOutput.value;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const originalText = btnCopy.innerHTML;
+      btnCopy.innerHTML = '<span>✅</span> ¡Copiado!';
+      setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
+    } catch {
+      alert('No se pudo copiar automáticamente al portapapeles.');
+    }
+  });
+
+  // Descargar archivo .json
+  btnDownload.addEventListener('click', () => {
+    const text = jsonOutput.value || jsonInput.value;
+    if (!text.trim()) return;
+    const blob = new Blob([text], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'datos-formateados.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Limpiar campos JSON
+  btnClear.addEventListener('click', () => {
+    jsonInput.value = '';
+    jsonOutput.value = '';
+    validateJsonLive();
+  });
+
+  // ==========================================
+  // MÓDULO 2: LIMPIADOR DE LISTAS & GENERADOR SQL
+  // ==========================================
+  const listInput = document.getElementById('list-input') as HTMLTextAreaElement;
+  const listOutput = document.getElementById('list-output') as HTMLTextAreaElement;
+  const listBadge = document.getElementById('list-status-badge') as HTMLElement;
+
+  const chkDedup = document.getElementById('chk-dedup') as HTMLInputElement;
+  const chkTrim = document.getElementById('chk-trim') as HTMLInputElement;
+  const chkEmpty = document.getElementById('chk-empty') as HTMLInputElement;
+  const chkCaseSensitive = document.getElementById('chk-case-sensitive') as HTMLInputElement;
+
+  const selSort = document.getElementById('sel-sort') as HTMLSelectElement;
+  const selCase = document.getElementById('sel-case') as HTMLSelectElement;
+
+  const chkSqlMode = document.getElementById('chk-sql-mode') as HTMLInputElement;
+  const sqlOptionsDiv = document.getElementById('sql-options') as HTMLDivElement;
+  const selSqlQuotes = document.getElementById('sel-sql-quotes') as HTMLSelectElement;
+  const chkSqlWhere = document.getElementById('chk-sql-where') as HTMLInputElement;
+
+  const txtPrefix = document.getElementById('txt-prefix') as HTMLInputElement;
+  const txtSuffix = document.getElementById('txt-suffix') as HTMLInputElement;
+  const selDelimiter = document.getElementById('sel-delimiter') as HTMLSelectElement;
+
+  const btnListProcess = document.getElementById('btn-list-process') as HTMLButtonElement;
+  const btnListSample = document.getElementById('btn-list-sample') as HTMLButtonElement;
+  const btnListCopy = document.getElementById('btn-list-copy') as HTMLButtonElement;
+  const btnListDownload = document.getElementById('btn-list-download') as HTMLButtonElement;
+  const btnListClear = document.getElementById('btn-list-clear') as HTMLButtonElement;
+
+  const statListOrig = document.getElementById('stat-list-orig') as HTMLElement;
+  const statListClean = document.getElementById('stat-list-clean') as HTMLElement;
+  const statListDups = document.getElementById('stat-list-dups') as HTMLElement;
+  const statListChars = document.getElementById('stat-list-chars') as HTMLElement;
+
+  // Habilitar/Deshabilitar opciones SQL
+  chkSqlMode.addEventListener('change', () => {
+    if (chkSqlMode.checked) {
+      sqlOptionsDiv.style.opacity = '1';
+      sqlOptionsDiv.style.pointerEvents = 'auto';
+    } else {
+      sqlOptionsDiv.style.opacity = '0.6';
+      sqlOptionsDiv.style.pointerEvents = 'none';
+    }
+  });
+
+  // Función principal de procesamiento de listas
+  function processList() {
+    const raw = listInput.value;
+    if (!raw.trim()) {
+      statListOrig.textContent = '0';
+      statListClean.textContent = '0';
+      statListDups.textContent = '0';
+      statListChars.textContent = '0';
+      listOutput.value = '';
+      listBadge.style.display = 'none';
+      return;
+    }
+
+    // Dividir por saltos de línea inicialmente
+    let lines = raw.split(/\r?\n/);
+    const origCount = lines.length;
+
+    // 1. Trim de espacios
+    if (chkTrim.checked) {
+      lines = lines.map(l => l.trim());
+    }
+
+    // 2. Eliminar líneas vacías
+    if (chkEmpty.checked) {
+      lines = lines.filter(l => l.length > 0);
+    }
+
+    // 3. Conversión de mayúsculas/minúsculas
+    const caseOpt = selCase.value;
+    if (caseOpt === 'lower') {
+      lines = lines.map(l => l.toLowerCase());
+    } else if (caseOpt === 'upper') {
+      lines = lines.map(l => l.toUpperCase());
+    } else if (caseOpt === 'title') {
+      lines = lines.map(l => l.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase()));
+    } else if (caseOpt === 'snake') {
+      lines = lines.map(l => l.toLowerCase().replace(/[\s-]+/g, '_'));
+    } else if (caseOpt === 'kebab') {
+      lines = lines.map(l => l.toLowerCase().replace(/[\s_]+/g, '-'));
+    }
+
+    // 4. Deduplicación
+    let dupsCount = 0;
+    if (chkDedup.checked) {
+      const isCase = chkCaseSensitive.checked;
+      const seen = new Set<string>();
+      const uniqueLines: string[] = [];
+
+      for (const line of lines) {
+        const key = isCase ? line : line.toLowerCase();
+        if (seen.has(key)) {
+          dupsCount++;
+        } else {
+          seen.add(key);
+          uniqueLines.push(line);
+        }
+      }
+      lines = uniqueLines;
+    }
+
+    // 5. Ordenamiento
+    const sortOpt = selSort.value;
+    if (sortOpt === 'az') {
+      lines.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    } else if (sortOpt === 'za') {
+      lines.sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }));
+    } else if (sortOpt === 'num-asc') {
+      lines.sort((a, b) => (parseFloat(a) || 0) - (parseFloat(b) || 0));
+    } else if (sortOpt === 'num-desc') {
+      lines.sort((a, b) => (parseFloat(b) || 0) - (parseFloat(a) || 0));
+    } else if (sortOpt === 'len-asc') {
+      lines.sort((a, b) => a.length - b.length);
+    } else if (sortOpt === 'shuffle') {
+      for (let i = lines.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+      }
+    }
+
+    // 6. Prefijo y Sufijo
+    const prefix = txtPrefix.value;
+    const suffix = txtSuffix.value;
+    if (prefix || suffix) {
+      lines = lines.map(l => `${prefix}${l}${suffix}`);
+    }
+
+    // 7. Salida: Modo SQL o Delimitador común
+    let finalOutput = '';
+
+    if (chkSqlMode.checked) {
+      const quoteType = selSqlQuotes.value;
+      const formattedItems = lines.map(item => {
+        const escaped = item.replace(/'/g, "''");
+        if (quoteType === 'single') return `'${escaped}'`;
+        if (quoteType === 'double') return `"${escaped.replace(/"/g, '""')}"`;
+        return item; // sin comillas para números
+      });
+
+      const inClause = `IN (\n  ${formattedItems.join(',\n  ')}\n)`;
+      finalOutput = chkSqlWhere.checked ? `WHERE id ${inClause}` : inClause;
+    } else {
+      // Delimitadores personalizados
+      const delim = selDelimiter.value;
+      let sep = '\n';
+      if (delim === 'comma-space') sep = ', ';
+      else if (delim === 'comma') sep = ',';
+      else if (delim === 'semicolon') sep = '; ';
+      else if (delim === 'pipe') sep = ' | ';
+      else if (delim === 'tab') sep = '\t';
+
+      finalOutput = lines.join(sep);
+    }
+
+    // Actualizar resultados y KPIs
+    listOutput.value = finalOutput;
+    statListOrig.textContent = String(origCount);
+    statListClean.textContent = String(lines.length);
+    statListDups.textContent = String(dupsCount);
+    statListChars.textContent = String(finalOutput.length);
+
+    listBadge.style.display = 'inline-block';
+  }
+
+  btnListProcess.addEventListener('click', processList);
+
+  // Muestra de datos para lista
+  btnListSample.addEventListener('click', () => {
+    listInput.value = [
+      '  juan.perez@empresa.ec  ',
+      'maria.lopez@comercio.ec',
+      'JUAN.PEREZ@EMPRESA.EC',
+      'carlos.andrade@quito.ec',
+      'ana.martinez@guayaquil.ec',
+      'maria.lopez@comercio.ec',
+      '',
+      'esteban.salazar@cuenca.ec',
+      'ana.martinez@guayaquil.ec'
+    ].join('\n');
+    processList();
+  });
+
+  // Copiar salida de lista
+  btnListCopy.addEventListener('click', async () => {
+    const text = listOutput.value;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      const originalText = btnListCopy.innerHTML;
+      btnListCopy.innerHTML = '<span>✅</span> ¡Copiado!';
+      setTimeout(() => { btnListCopy.innerHTML = originalText; }, 2000);
+    } catch {
+      alert('No se pudo copiar al portapapeles.');
+    }
+  });
+
+  // Descargar archivo .txt o .sql
+  btnListDownload.addEventListener('click', () => {
+    const text = listOutput.value || listInput.value;
+    if (!text.trim()) return;
+    const isSql = chkSqlMode.checked;
+    const ext = isSql ? 'sql' : 'txt';
+    const mime = isSql ? 'text/sql;charset=utf-8;' : 'text/plain;charset=utf-8;';
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lista-procesada.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Limpiar lista
+  btnListClear.addEventListener('click', () => {
+    listInput.value = '';
+    listOutput.value = '';
+    statListOrig.textContent = '0';
+    statListClean.textContent = '0';
+    statListDups.textContent = '0';
+    statListChars.textContent = '0';
+    listBadge.style.display = 'none';
+  });
+</script>
