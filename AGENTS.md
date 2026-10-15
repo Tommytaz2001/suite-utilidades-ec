@@ -72,7 +72,7 @@ npm run preview
 | **Fase 2** | Simulador de Crédito Ecuador (Francés, Alemán, Tasas BCE, Exportación CSV) | `/simulador-credito-ecuador/` | ✅ Completado |
 | **Fase 3** | Calculadora Laboral Ecuador (13°, 14°, Fondos IESS, Rol y Finiquito/Despido) | `/calculadora-laboral-ecuador/` | ✅ Completado |
 | **Fase 4** | Calculadora de Calorías y Macros (Mifflin-St Jeor, TMB, Déficit/Superávit) | `/calculadora-deficit-calorico/` | ✅ Completado |
-| **Fase 5** | Compresor y Convertidor de Imágenes (WebP/PNG/JPG client-side vía Canvas) | `/compresor-imagenes/` | ⏳ Pendiente |
+| **Fase 5** | Compresor y Convertidor de Imágenes (WebP/PNG/JPG client-side vía Canvas) | `/compresor-imagenes/` | ✅ Completado |
 | **Fase 6** | Formateador JSON y Limpiador de Listas (SQL IN(), deduplicador, parser) | `/formateador-json-limpiador-listas/` | ⏳ Pendiente |
 
 ---

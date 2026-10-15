@@ -1,0 +1,642 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+
+const faqs = [
+  {
+    question: '¿Mis imágenes se suben a algún servidor externo?',
+    answer: 'No. Todo el proceso de compresión, redimensionamiento y conversión de formato se realiza 100% de manera local en tu navegador utilizando la API HTML5 Canvas y Blob de JavaScript. Tus fotos nunca salen de tu dispositivo, garantizando total privacidad y confidencialidad.'
+  },
+  {
+    question: '¿Por qué se recomienda convertir imágenes a formato WebP?',
+    answer: 'WebP es un formato moderno desarrollado por Google que ofrece una compresión superior: las imágenes WebP son entre un 25% y un 35% más ligeras que un JPEG o PNG equivalente con la misma calidad visual percibida. Además, soporta transparencias y es compatible con más del 98% de los navegadores actuales.'
+  },
+  {
+    question: '¿Qué nivel de calidad debo elegir para que no se vea borrosa?',
+    answer: 'Un nivel de calidad entre el 75% y el 85% es el punto ideal: reduce el peso del archivo hasta en un 80% sin que el ojo humano note pérdida perceptible de nitidez en pantallas de computadoras o teléfonos móviles. Para fotografías con mucho detalle, un 85% es perfecto; para gráficos web simples, 70% suele ser suficiente.'
+  },
+  {
+    question: '¿Cómo mejora la compresión de imágenes el SEO de mi sitio web?',
+    answer: 'Las imágenes pesadas son la causa #1 de lentitud en internet. Google penaliza los sitios lentos y premia aquellos con métricas de Core Web Vitals óptimas (en especial el LCP o Largest Contentful Paint). Reducir el peso de tus imágenes acelera la carga en conexiones móviles y mejora significativamente tu posicionamiento en buscadores.'
+  },
+  {
+    question: '¿Hay un límite de tamaño o número de fotos que puedo comprimir?',
+    answer: 'No hay límite impuesto por nuestra plataforma ya que no usamos servidores. El único límite es la memoria RAM de tu dispositivo. Puedes procesar varias fotos a la vez y descargarlas una a una o todas en lote.'
+  },
+  {
+    question: '¿Qué formatos de imagen son compatibles?',
+    answer: 'Puedes subir imágenes en formato JPEG, JPG, PNG, WebP, GIF, BMP y SVG. La herramienta te permite exportar el resultado final a WebP, JPEG o PNG según tu preferencia.'
+  }
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(f => ({
+    "@type": "Question",
+    "name": f.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.answer
+    }
+  }))
+};
+---
+<ToolLayout
+  title="Compresor de Imágenes Online Gratis | WebP, PNG, JPG sin Servidor"
+  description="Comprime y convierte imágenes a WebP, JPG o PNG al instante en tu navegador. Reduce hasta el 90% del peso sin perder calidad visual. 100% gratis y privado, tus fotos nunca salen de tu dispositivo."
+  canonical="https://herramientas-ec.pages.dev/compresor-imagenes/"
+  schema={schema}
+  toolName="Compresor y Convertidor de Imágenes"
+  toolIcon="🖼️"
+  toolTagline="Reduce el peso de tus imágenes y conviértelas a WebP, JPG o PNG en segundos. 100% en tu navegador, sin subir fotos a servidores."
+>
+
+  <!-- PANEL DE CONFIGURACIÓN Y DROPZONE -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;" class="compresor-grid">
+    
+    <!-- COLUMNA IZQUIERDA: DROPZONE -->
+    <section class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <h2 class="section-title" style="margin-bottom:0.5rem; font-size:1.35rem;">Sube tus Imágenes</h2>
+        <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          Arrastra tus fotos o selecciónalas desde tu dispositivo (JPG, PNG, WebP, etc.).
+        </p>
+
+        <!-- Dropzone interactiva -->
+        <div
+          id="dropzone"
+          style="border:2px dashed var(--accent); border-radius:1rem; padding:2.5rem 1.5rem; text-align:center; background:rgba(16,185,129,0.03); cursor:pointer; transition:all 0.25s ease;"
+        >
+          <input type="file" id="file-input" multiple accept="image/*" style="display:none;" />
+          
+          <div style="font-size:3rem; margin-bottom:0.75rem;">📁</div>
+          <p style="font-size:1.0625rem; font-weight:700; color:var(--text); margin-bottom:0.35rem;">
+            Arrastra tus imágenes aquí
+          </p>
+          <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1rem;">
+            o haz clic para explorar en tu equipo
+          </p>
+          <button type="button" class="btn-primary" id="btn-select-files" style="padding:0.6rem 1.25rem; font-size:0.875rem;">
+            Seleccionar Imágenes
+          </button>
+        </div>
+      </div>
+
+      <!-- Insignia de privacidad client-side -->
+      <div style="display:flex; align-items:center; gap:0.6rem; margin-top:1.25rem; padding:0.75rem 1rem; background:rgba(15,23,42,0.6); border:1px solid var(--border); border-radius:0.75rem;">
+        <span style="font-size:1.25rem;">🔒</span>
+        <span style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+          <strong>Privacidad Garantizada:</strong> Las imágenes se procesan en la memoria RAM de tu navegador. Ningún byte se envía a servidores.
+        </span>
+      </div>
+    </section>
+
+    <!-- COLUMNA DERECHA: AJUSTES DE COMPRESIÓN -->
+    <section class="card" aria-labelledby="settings-title">
+      <h2 id="settings-title" class="section-title" style="margin-bottom:1rem; font-size:1.35rem;">Ajustes de Optimización</h2>
+
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        
+        <!-- Formato de salida -->
+        <div>
+          <label class="form-label">Formato de Salida</label>
+          <div class="toggle-group" role="radiogroup" aria-label="Formato de exportación">
+            <button type="button" class="toggle-btn active" data-format="image/webp" role="radio" aria-checked="true">
+              ✨ WebP (Recomendado)
+            </button>
+            <button type="button" class="toggle-btn" data-format="image/jpeg" role="radio" aria-checked="false">
+              📷 JPG / JPEG
+            </button>
+            <button type="button" class="toggle-btn" data-format="image/png" role="radio" aria-checked="false">
+              🎨 PNG
+            </button>
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;" id="format-hint">
+            WebP ofrece la máxima compresión y preserva transparencias.
+          </span>
+        </div>
+
+        <!-- Calidad Slider -->
+        <div id="quality-wrapper">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+            <label for="quality-slider" class="form-label" style="margin-bottom:0;">Calidad de Compresión</label>
+            <strong id="quality-display" style="font-size:1rem; color:var(--accent);">80%</strong>
+          </div>
+          <input type="range" id="quality-slider" min="10" max="100" value="80" step="5" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+            <span>Menor peso (10%)</span>
+            <span>Equilibrado (80%)</span>
+            <span>Máxima nitidez (100%)</span>
+          </div>
+        </div>
+
+        <!-- Redimensionar resolución máxima -->
+        <div>
+          <label for="max-res-select" class="form-label">Resolución Máxima (Ancho o Alto)</label>
+          <select id="max-res-select" class="form-select">
+            <option value="original" selected>Conservar tamaño original (Sin redimensionar)</option>
+            <option value="1920">Full HD (Máximo 1920 px) — Ideal para webs y banners</option>
+            <option value="1280">HD (Máximo 1280 px) — Ideal para artículos y blogs</option>
+            <option value="800">Mediano (Máximo 800 px) — Ideal para e-commerce</option>
+            <option value="500">Miniatura (Máximo 500 px) — Avatares e iconos</option>
+          </select>
+        </div>
+
+        <!-- Botón procesar / re-comprimir -->
+        <button type="button" id="btn-reprocess" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem; font-size:1rem; padding:0.875rem;" disabled>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Optimizar Imágenes
+        </button>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- RESUMEN GLOBAL (APARECE AL PROCESAR IMÁGENES) -->
+  <section id="global-stats-section" style="display:none; margin-bottom:2rem;" class="animate-in">
+    <div class="card" style="background:radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, var(--surface) 80%); border:1px solid rgba(16,185,129,0.35); padding:1.25rem 1.5rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <span class="badge badge-green" style="margin-bottom:0.35rem;">Optimización Completada</span>
+          <h3 style="font-size:1.5rem; font-weight:800; margin:0;" id="global-savings-title">
+            ¡Ahorraste 0 KB (0%)!
+          </h3>
+          <p style="font-size:0.875rem; color:var(--text-muted); margin:0.25rem 0 0;" id="global-savings-desc">
+            Peso original: 0 MB · Peso comprimido: 0 MB
+          </p>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <button type="button" id="btn-download-all" class="btn-primary" style="padding:0.75rem 1.5rem; font-size:0.9375rem;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Descargar Todas
+          </button>
+          <button type="button" id="btn-clear-all" class="btn-secondary" style="padding:0.75rem 1rem;">
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA DE IMÁGENES PROCESADAS -->
+  <section id="results-section" style="display:none; margin-bottom:3rem;" aria-label="Imágenes procesadas">
+    <h3 style="font-size:1.25rem; font-weight:800; margin-bottom:1rem; color:var(--text);">
+      Archivos Optimizados (<span id="count-processed">0</span>)
+    </h3>
+    <div id="cards-container" style="display:flex; flex-direction:column; gap:1rem;">
+      <!-- Las tarjetas se generan dinámicamente con JavaScript -->
+    </div>
+  </section>
+
+  <!-- GUÍA SEO COMPLETA -->
+  <article class="prose-dark" style="margin-top:3rem; margin-bottom:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+    <h2>Guía de Optimización y Compresión de Imágenes para la Web</h2>
+    <p>
+      En la era digital actual, la velocidad de carga es un factor determinante para el éxito de cualquier página web, tienda de comercio electrónico o blog. Las imágenes sin optimizar representan frecuentemente <strong>más del 65% del peso total de una página web</strong>. Reducir su tamaño sin sacrificar la nitidez visual es la estrategia más rápida y efectiva para mejorar la experiencia de usuario y las conversiones.
+    </p>
+
+    <h2>1. WebP vs JPG vs PNG: ¿Qué formato elegir?</h2>
+    <ul>
+      <li><strong>WebP (Formato Moderno Recomendado):</strong> Diseñado por Google específicamente para internet. Proporciona una compresión con pérdida y sin pérdida de nivel superior. Soporta transparencias con canales alfa (reemplazando al pesado PNG) y pesa hasta un tercio menos que un JPG. Compatible con Google Chrome, Safari, Firefox, Edge y teléfonos móviles.</li>
+      <li><strong>JPEG / JPG (Fotografías Clásicas):</strong> Ideal para fotografías y tomas de paisajes con muchos gradientes y colores complejos. No soporta fondos transparentes.</li>
+      <li><strong>PNG (Gráficos y Logos):</strong> Emplea compresión sin pérdida (lossless). Excelente para logotipos, iconos con textos nítidos y gráficos que requieran transparencias exactas, aunque su peso suele ser considerablemente mayor.</li>
+    </ul>
+
+    <h2>2. Compresión con Pérdida (Lossy) vs. Sin Pérdida (Lossless)</h2>
+    <p>
+      La compresión <em>lossy</em> (con pérdida) elimina frecuencias de color imperceptibles para el ojo humano, permitiendo reducir el tamaño del archivo entre un 60% y un 85%. Por otro lado, la compresión <em>lossless</em> mantiene cada píxel idéntico al original, reduciendo el peso de forma más modesta (entre un 10% y un 25%). Para aplicaciones web y móviles, una compresión con pérdida al <strong>80% de calidad</strong> es la norma de oro de la industria.
+    </p>
+
+    <h2>3. ¿Cómo funciona la compresión 100% en el cliente?</h2>
+    <p>
+      A diferencia de otros convertidores tradicionales que obligan a subir tus fotos privadas a servidores desconocidos en otros países (con el consiguiente consumo de ancho de banda y riesgos de privacidad), esta herramienta aprovecha la tecnología <strong>HTML5 Canvas y la API Blob nativa de tu propio navegador</strong>:
+    </p>
+    <ul>
+      <li>El archivo se lee instantáneamente desde tu almacenamiento a la memoria RAM de tu computadora o teléfono.</li>
+      <li>Un lienzo virtual de Canvas renderiza la imagen a las dimensiones configuradas.</li>
+      <li>El motor gráfico de tu navegador recompone los píxeles utilizando los algoritmos oficiales de compresión del estándar WebP o JPEG.</li>
+      <li>Se crea un enlace de descarga local de forma inmediata, sin latencia de red ni esperas de subida.</li>
+    </ul>
+
+    <h2>4. Impacto en los Core Web Vitals de Google</h2>
+    <p>
+      Google evalúa la velocidad de tu web mediante métricas clave como el <strong>Largest Contentful Paint (LCP)</strong>. Cuando el elemento visual principal (generalmente una imagen de cabecera o banner) tarda más de 2.5 segundos en desplegarse, el buscador clasifica la web como deficiente, afectando negativamente su posición en las páginas de resultados. Comprimir tus imágenes es el primer paso para conseguir una puntuación de 100 en Google PageSpeed Insights.
+    </p>
+  </article>
+
+  <!-- Preguntas Frecuentes -->
+  <FaqAccordion items={faqs} />
+
+</ToolLayout>
+
+<style>
+  @media (max-width: 850px) {
+    .compresor-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  .drag-over {
+    border-color: var(--accent) !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+    transform: scale(1.01);
+  }
+
+  .file-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.875rem;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    transition: border-color 0.2s ease;
+  }
+
+  .file-card:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+
+  .file-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+</style>
+
+<!-- LÓGICA JAVASCRIPT CLIENT-SIDE -->
+<script>
+  // Utilidades de formato
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  interface ProcessedImage {
+    id: string;
+    originalFile: File;
+    originalSize: number;
+    compressedBlob: Blob;
+    compressedSize: number;
+    savingsPct: number;
+    outputFormat: string;
+    fileName: string;
+    dataUrl: string;
+    width: number;
+    height: number;
+  }
+
+  // Estado
+  let selectedFiles: File[] = [];
+  let processedImages: ProcessedImage[] = [];
+  let targetFormat = 'image/webp';
+  let targetQuality = 0.80;
+  let maxDimension = 'original';
+
+  // Referencias DOM
+  const dropzone        = document.getElementById('dropzone')!;
+  const fileInput       = document.getElementById('file-input') as HTMLInputElement;
+  const btnSelectFiles  = document.getElementById('btn-select-files') as HTMLButtonElement;
+  const qualitySlider   = document.getElementById('quality-slider') as HTMLInputElement;
+  const qualityDisplay  = document.getElementById('quality-display')!;
+  const qualityWrapper  = document.getElementById('quality-wrapper') as HTMLElement;
+  const maxResSelect    = document.getElementById('max-res-select') as HTMLSelectElement;
+  const btnReprocess    = document.getElementById('btn-reprocess') as HTMLButtonElement;
+  const formatButtons   = document.querySelectorAll('.toggle-btn[data-format]');
+  const formatHint      = document.getElementById('format-hint')!;
+
+  const globalStatsSec  = document.getElementById('global-stats-section') as HTMLElement;
+  const globalSavingsTitle = document.getElementById('global-savings-title')!;
+  const globalSavingsDesc  = document.getElementById('global-savings-desc')!;
+  const btnDownloadAll  = document.getElementById('btn-download-all') as HTMLButtonElement;
+  const btnClearAll     = document.getElementById('btn-clear-all') as HTMLButtonElement;
+
+  const resultsSection  = document.getElementById('results-section') as HTMLElement;
+  const countProcessed  = document.getElementById('count-processed')!;
+  const cardsContainer  = document.getElementById('cards-container')!;
+
+  // Dropzone drag & drop events
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+    });
+  });
+
+  dropzone.addEventListener('drop', (e: DragEvent) => {
+    if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+      handleFiles(Array.from(e.dataTransfer.files));
+    }
+  });
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  btnSelectFiles.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files.length > 0) {
+      handleFiles(Array.from(fileInput.files));
+    }
+  });
+
+  // Selector de Formato
+  formatButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      formatButtons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-checked', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-checked', 'true');
+      targetFormat = btn.getAttribute('data-format') || 'image/webp';
+
+      // Ajuste de UI según formato (PNG no tiene slider de calidad lossy en canvas toBlob)
+      if (targetFormat === 'image/png') {
+        qualityWrapper.style.opacity = '0.5';
+        qualityWrapper.style.pointerEvents = 'none';
+        formatHint.textContent = 'PNG utiliza compresión sin pérdida (lossless). Conserva transparencias pero es más pesado.';
+      } else if (targetFormat === 'image/webp') {
+        qualityWrapper.style.opacity = '1';
+        qualityWrapper.style.pointerEvents = 'auto';
+        formatHint.textContent = 'WebP ofrece la máxima compresión y preserva transparencias.';
+      } else {
+        qualityWrapper.style.opacity = '1';
+        qualityWrapper.style.pointerEvents = 'auto';
+        formatHint.textContent = 'JPG es ideal para fotografías. No admite fondos transparentes.';
+      }
+
+      if (selectedFiles.length > 0) {
+        processAllFiles();
+      }
+    });
+  });
+
+  // Slider de Calidad
+  qualitySlider.addEventListener('input', () => {
+    const val = parseInt(qualitySlider.value);
+    targetQuality = val / 100;
+    qualityDisplay.textContent = `${val}%`;
+  });
+
+  qualitySlider.addEventListener('change', () => {
+    if (selectedFiles.length > 0 && targetFormat !== 'image/png') {
+      processAllFiles();
+    }
+  });
+
+  // Selector de Resolución
+  maxResSelect.addEventListener('change', () => {
+    maxDimension = maxResSelect.value;
+    if (selectedFiles.length > 0) {
+      processAllFiles();
+    }
+  });
+
+  btnReprocess.addEventListener('click', () => {
+    if (selectedFiles.length > 0) {
+      processAllFiles();
+    }
+  });
+
+  // Manejador de nuevos archivos subidos
+  function handleFiles(files: File[]) {
+    const imageFiles = files.filter(f => f.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(f.name));
+    if (imageFiles.length === 0) {
+      alert('Por favor selecciona archivos de imagen válidos (JPG, PNG, WebP, etc.).');
+      return;
+    }
+
+    selectedFiles = imageFiles;
+    btnReprocess.disabled = false;
+    processAllFiles();
+  }
+
+  // Motor de Compresión en Canvas
+  async function compressSingleImage(file: File): Promise<ProcessedImage> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+
+          // Redimensionar si se especificó resolución máxima
+          if (maxDimension !== 'original') {
+            const maxPx = parseInt(maxDimension);
+            if (width > maxPx || height > maxPx) {
+              if (width > height) {
+                height = Math.round((height * maxPx) / width);
+                width = maxPx;
+              } else {
+                width = Math.round((width * maxPx) / height);
+                height = maxPx;
+              }
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) {
+            reject(new Error('No se pudo inicializar el contexto de Canvas.'));
+            return;
+          }
+
+          // Si es JPG y la imagen original tenía transparencia, rellenar de blanco
+          if (targetFormat === 'image/jpeg') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error('Error al comprimir imagen.'));
+              return;
+            }
+
+            // Extensión de salida
+            let ext = 'webp';
+            if (targetFormat === 'image/jpeg') ext = 'jpg';
+            if (targetFormat === 'image/png') ext = 'png';
+
+            const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const newFileName = `${baseName}-optimizado.${ext}`;
+
+            const originalSize = file.size;
+            const compressedSize = blob.size;
+            const savings = Math.max(0, Math.round(((originalSize - compressedSize) / originalSize) * 100));
+
+            const dataUrl = URL.createObjectURL(blob);
+
+            resolve({
+              id: Math.random().toString(36).substring(2, 9),
+              originalFile: file,
+              originalSize,
+              compressedBlob: blob,
+              compressedSize,
+              savingsPct: savings,
+              outputFormat: ext.toUpperCase(),
+              fileName: newFileName,
+              dataUrl,
+              width,
+              height
+            });
+          }, targetFormat, targetQuality);
+        };
+
+        img.onerror = () => reject(new Error('Error al cargar imagen en el navegador.'));
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = () => reject(new Error('Error al leer archivo local.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Procesar todo el lote
+  async function processAllFiles() {
+    btnReprocess.disabled = true;
+    btnReprocess.textContent = 'Procesando...';
+
+    processedImages = [];
+    cardsContainer.innerHTML = `
+      <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+        <p style="font-size:1.5rem; margin-bottom:0.5rem;">⚡</p>
+        <p>Comprimiendo imágenes en tu navegador...</p>
+      </div>
+    `;
+    resultsSection.style.display = 'block';
+
+    try {
+      for (const file of selectedFiles) {
+        const item = await compressSingleImage(file);
+        processedImages.push(item);
+      }
+      renderResults();
+    } catch (err) {
+      console.error(err);
+      alert('Ocurrió un error al procesar alguna de las imágenes.');
+    } finally {
+      btnReprocess.disabled = false;
+      btnReprocess.innerHTML = `
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Re-optimizar con nuevos ajustes
+      `;
+    }
+  }
+
+  // Renderizar tarjetas de resultado
+  function renderResults() {
+    countProcessed.textContent = String(processedImages.length);
+    cardsContainer.innerHTML = '';
+
+    let totalOrig = 0;
+    let totalComp = 0;
+
+    processedImages.forEach(img => {
+      totalOrig += img.originalSize;
+      totalComp += img.compressedSize;
+
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      card.innerHTML = `
+        <div style="display:flex; align-items:center; gap:1rem; min-width:240px; flex:1;">
+          <img src="${img.dataUrl}" alt="${img.fileName}" class="file-thumb" />
+          <div style="overflow:hidden;">
+            <div style="font-weight:700; font-size:0.9375rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;" title="${img.fileName}">
+              ${img.fileName}
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+              ${img.width} × ${img.height} px · Formato: <strong style="color:var(--text);">${img.outputFormat}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+          <div style="text-align:right;">
+            <div style="font-size:0.8125rem; color:var(--text-muted); text-decoration:line-through;">
+              ${formatBytes(img.originalSize)}
+            </div>
+            <div style="font-size:1.125rem; font-weight:800; color:var(--accent);">
+              ${formatBytes(img.compressedSize)}
+            </div>
+          </div>
+
+          <span class="badge ${img.savingsPct > 0 ? 'badge-green' : ''}" style="${img.savingsPct === 0 ? 'background:rgba(148,163,184,0.15); color:var(--text-muted);' : ''}">
+            ${img.savingsPct > 0 ? `-${img.savingsPct}%` : 'Mismo tamaño'}
+          </span>
+
+          <a href="${img.dataUrl}" download="${img.fileName}" class="btn-primary" style="padding:0.5rem 1rem; font-size:0.8125rem; text-decoration:none;">
+            Descargar
+          </a>
+        </div>
+      `;
+      cardsContainer.appendChild(card);
+    });
+
+    // Actualizar Resumen Global
+    const totalAhorroBytes = Math.max(0, totalOrig - totalComp);
+    const globalSavingsPct = totalOrig > 0 ? Math.round((totalAhorroBytes / totalOrig) * 100) : 0;
+
+    globalSavingsTitle.textContent = `¡Ahorraste ${formatBytes(totalAhorroBytes)} (-${globalSavingsPct}%)!`;
+    globalSavingsDesc.textContent = `Peso original total: ${formatBytes(totalOrig)}  ➔  Peso final optimizado: ${formatBytes(totalComp)}`;
+    globalStatsSec.style.display = 'block';
+  }
+
+  // Descargar Todas las Imágenes en Cascada
+  btnDownloadAll.addEventListener('click', () => {
+    if (processedImages.length === 0) return;
+    processedImages.forEach((img, idx) => {
+      setTimeout(() => {
+        const link = document.createElement('a');
+        link.href = img.dataUrl;
+        link.download = img.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }, idx * 250); // delay escalonado para no bloquear descargas del navegador
+    });
+  });
+
+  // Limpiar lista
+  btnClearAll.addEventListener('click', () => {
+    processedImages.forEach(img => URL.revokeObjectURL(img.dataUrl));
+    processedImages = [];
+    selectedFiles = [];
+    fileInput.value = '';
+    globalStatsSec.style.display = 'none';
+    resultsSection.style.display = 'none';
+    cardsContainer.innerHTML = '';
+    btnReprocess.disabled = true;
+  });
+</script>
