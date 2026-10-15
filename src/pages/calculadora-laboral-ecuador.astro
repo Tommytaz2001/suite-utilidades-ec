@@ -1,0 +1,1200 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+
+const faqs = [
+  {
+    question: '¿Cómo se calcula el Décimo Tercer Sueldo en Ecuador?',
+    answer: 'El Décimo Tercero (o bono navideño) equivale a la doceava parte (1/12) de todas las remuneraciones percibidas por el trabajador durante el año calendario laboral (del 1 de diciembre del año anterior al 30 de noviembre del año en curso). Se incluyen sueldo base, horas extras, comisiones y bonos regulares. Debe pagarse hasta el 24 de diciembre, a menos que el trabajador haya solicitado recibirlo mensualizado.'
+  },
+  {
+    question: '¿Cuál es la diferencia entre el Décimo Cuarto de la Costa y de la Sierra?',
+    answer: 'El valor es el mismo: un Salario Básico Unificado (SBU, $460 en Ecuador) para jornada completa. Lo que cambia es el período de cálculo y la fecha límite de pago: en el Régimen Costa e Insular se calcula del 1 de marzo al último día de febrero y se paga hasta el 15 de marzo; en el Régimen Sierra y Amazonía se calcula del 1 de agosto al 31 de julio y se paga hasta el 15 de agosto.'
+  },
+  {
+    question: '¿Cuándo tengo derecho a cobrar los Fondos de Reserva del IESS?',
+    answer: 'El trabajador adquiere el derecho a fondos de reserva a partir del primer día del mes 13 de trabajo continuo para el mismo empleador (después de cumplir el primer año). Equivale al 8.33% de la remuneración mensual. El trabajador puede elegir recibirlo directamente en su rol mensual de pagos o solicitar la acumulación en el IESS a través de la plataforma web del instituto.'
+  },
+  {
+    question: '¿Cómo se calcula la indemnización por despido intempestivo?',
+    answer: 'Según el Artículo 188 del Código del Trabajo: si el trabajador tiene hasta 3 años de servicio, le corresponden 3 meses de remuneración completa. Si tiene más de 3 años, le corresponde 1 mes de sueldo por cada año de servicio cumplido o fracción de año (hasta un tope de 25 meses). Adicionalmente, siempre se le debe pagar la bonificación por desahucio (25% del último sueldo por cada año cumplido, Art. 185).'
+  },
+  {
+    question: '¿Qué me deben pagar si renuncio voluntariamente?',
+    answer: 'Si renuncias voluntariamente, no recibes indemnización por despido intempestivo, pero sí tienes derecho a: 1) Bonificación por desahucio (25% del último sueldo por cada año completo laborado, Art. 185); 2) Proporcional de Décimo Tercero acumulado; 3) Proporcional de Décimo Cuarto acumulado; 4) Vacaciones no gozadas proporcionales; y 5) Días trabajados del mes en curso.'
+  },
+  {
+    question: '¿Cuántos días de vacaciones me corresponden por ley en Ecuador?',
+    answer: 'Todo trabajador tiene derecho a un período anual ininterrumpido de 15 días de descanso remunerado (incluyendo fines de semana). Quienes hubieren prestado servicios por más de 5 años en la misma empresa tienen derecho a un día adicional de vacación por cada año excedente, o a recibir en dinero la remuneración correspondiente a esos días adicionales, hasta un máximo legal de 30 días.'
+  }
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(f => ({
+    "@type": "Question",
+    "name": f.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.answer
+    }
+  }))
+};
+---
+<ToolLayout
+  title="Calculadora Laboral Ecuador 2025 | Décimos, IESS y Liquidación Gratis"
+  description="Calcula tu sueldo neto, aporte al IESS (9.45%), décimo tercero, décimo cuarto, fondos de reserva y simula tu liquidación por despido o renuncia según el Código del Trabajo de Ecuador. 100% gratis y privado."
+  canonical="https://herramientas-ec.pages.dev/calculadora-laboral-ecuador/"
+  schema={schema}
+  toolName="Calculadora Laboral y Liquidación Ecuador"
+  toolIcon="🧮"
+  toolTagline="Calcula tu rol de pagos mensual, aportes IESS, décimos por región y simula finiquitos por despido o renuncia."
+>
+
+  <!-- PESTAÑAS DE NAVEGACIÓN DE HERRAMIENTA -->
+  <div style="margin-bottom: 2rem;">
+    <div class="toggle-group" role="tablist" aria-label="Módulos de la calculadora laboral" style="max-width: 680px; margin: 0 auto;">
+      <button class="toggle-btn active" data-tab="tab-rol" role="tab" id="btn-tab-rol" aria-selected="true">
+        💼 Rol Mensual y Sueldo Neto
+      </button>
+      <button class="toggle-btn" data-tab="tab-decimos" role="tab" id="btn-tab-decimos" aria-selected="false">
+        🎁 Décimos y Fondos
+      </button>
+      <button class="toggle-btn" data-tab="tab-liquidacion" role="tab" id="btn-tab-liquidacion" aria-selected="false">
+        📄 Simulador de Liquidación
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAB 1: ROL MENSUAL Y SUELDO NETO           -->
+  <!-- ========================================== -->
+  <div id="tab-rol" class="tab-pane animate-in">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;" class="laboral-grid">
+      
+      <!-- Formulario de entrada Rol -->
+      <section class="card" aria-labelledby="form-rol-title">
+        <h2 id="form-rol-title" class="section-title" style="margin-bottom:1.25rem;">Datos del Sueldo</h2>
+
+        <div style="display:flex; flex-direction:column; gap:1.15rem;">
+          <div>
+            <label for="rol-sueldo" class="form-label">Sueldo Base Mensual (USD $)</label>
+            <input type="number" id="rol-sueldo" class="form-input" value="700" min="100" max="50000" step="10" placeholder="Ej: 700" />
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Salario Básico Unificado vigente: $460.00</span>
+          </div>
+
+          <div>
+            <label for="rol-adicionales" class="form-label">Horas Extras y Comisiones Gravables ($)</label>
+            <input type="number" id="rol-adicionales" class="form-input" value="0" min="0" max="20000" step="5" placeholder="0.00" />
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Ingresos ordinarios gravables para el IESS</span>
+          </div>
+
+          <!-- Opciones de mensualización -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:0.75rem; padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <span style="font-size:0.8125rem; font-weight:700; color:var(--text); text-transform:uppercase; letter-spacing:0.05em;">Beneficios en el Rol de Pagos:</span>
+            
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem; color:var(--text);">
+              <input type="checkbox" id="rol-check-13" style="width:1.1rem; height:1.1rem; accent-color:var(--accent);" />
+              <span>Mensualizar <strong>Décimo Tercero</strong> (1/12 sueldo)</span>
+            </label>
+
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem; color:var(--text);">
+              <input type="checkbox" id="rol-check-14" style="width:1.1rem; height:1.1rem; accent-color:var(--accent);" />
+              <span>Mensualizar <strong>Décimo Cuarto</strong> (1/12 de 1 SBU = $38.33)</span>
+            </label>
+
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem; color:var(--text);">
+              <input type="checkbox" id="rol-check-fondos" style="width:1.1rem; height:1.1rem; accent-color:var(--accent);" />
+              <span>Recibir <strong>Fondos de Reserva</strong> (8.33% - tras 1 año de trabajo)</span>
+            </label>
+          </div>
+
+          <!-- Botón calcular -->
+          <button id="btn-calc-rol" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.25rem; font-size:1rem; padding:0.875rem;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+            </svg>
+            Calcular Sueldo Neto
+          </button>
+        </div>
+      </section>
+
+      <!-- Resumen Rol -->
+      <section aria-labelledby="resumen-rol-title">
+        <h2 id="resumen-rol-title" class="section-title" style="margin-bottom:1rem;">Resumen de Ingresos y Descuentos</h2>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.875rem; margin-bottom:1rem;">
+          <div class="stat-card">
+            <div class="stat-label">Sueldo Neto a Recibir</div>
+            <div class="stat-value" id="stat-rol-neto" style="color:var(--accent-light); font-size:2rem;">$633.85</div>
+            <div class="stat-sub">Depósito directo en cuenta</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Aporte IESS Personal (9.45%)</div>
+            <div class="stat-value" id="stat-rol-iess" style="color:#f87171;">$66.15</div>
+            <div class="stat-sub">Deducción de ley</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem;">
+          <div style="font-size:0.875rem; font-weight:700; color:var(--text); margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+            <span>Detalle de Liquidación Mensual</span>
+            <span class="badge badge-green">Sector Privado</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(51,65,85,0.4); padding-bottom:0.35rem;">
+              <span style="color:var(--text-muted);">Sueldo base + extras gravables:</span>
+              <strong id="det-rol-bruto" style="color:var(--text);">$700.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(51,65,85,0.4); padding-bottom:0.35rem;">
+              <span style="color:var(--text-muted);">(-) Aporte Personal IESS (9.45%):</span>
+              <strong id="det-rol-iess" style="color:#f87171;">-$66.15</strong>
+            </div>
+            <div id="row-det-13" style="display:none; justify-content:space-between; border-bottom:1px solid rgba(51,65,85,0.4); padding-bottom:0.35rem;">
+              <span style="color:var(--text-muted);">(+) Décimo Tercero mensualizado:</span>
+              <strong id="det-rol-13" style="color:var(--accent);">$58.33</strong>
+            </div>
+            <div id="row-det-14" style="display:none; justify-content:space-between; border-bottom:1px solid rgba(51,65,85,0.4); padding-bottom:0.35rem;">
+              <span style="color:var(--text-muted);">(+) Décimo Cuarto mensualizado:</span>
+              <strong id="det-rol-14" style="color:var(--accent);">$38.33</strong>
+            </div>
+            <div id="row-det-fondos" style="display:none; justify-content:space-between; border-bottom:1px solid rgba(51,65,85,0.4); padding-bottom:0.35rem;">
+              <span style="color:var(--text-muted);">(+) Fondos de Reserva mensualizados (8.33%):</span>
+              <strong id="det-rol-fondos" style="color:var(--accent);">$58.31</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding-top:0.4rem; font-size:1rem; font-weight:800;">
+              <span style="color:var(--text);">Neto a Pagar al Trabajador:</span>
+              <span id="det-rol-total" style="color:var(--accent-light);">$633.85</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aporte Patronal / Costo Empresa -->
+        <div class="card" style="background:rgba(15,23,42,0.6); border:1px dashed var(--border);">
+          <div style="font-size:0.8125rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;">
+            Costo para el Empleador
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.875rem; margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Aporte Patronal IESS (11.15%):</span>
+            <strong id="stat-rol-patronal" style="color:var(--text);">$78.05</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Costo Total Mensual (con provisiones de ley):</span>
+            <strong id="stat-rol-costo-empresa" style="color:var(--text);">$933.02</strong>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAB 2: DÉCIMOS Y FONDOS DE RESERVA         -->
+  <!-- ========================================== -->
+  <div id="tab-decimos" class="tab-pane animate-in" style="display:none;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;" class="laboral-grid">
+      
+      <!-- Entrada Décimos -->
+      <section class="card" aria-labelledby="form-decimos-title">
+        <h2 id="form-decimos-title" class="section-title" style="margin-bottom:1.25rem;">Cálculo de Décimos y Fondos</h2>
+
+        <div style="display:flex; flex-direction:column; gap:1.15rem;">
+          <div>
+            <label for="dec-sueldo" class="form-label">Remuneración Mensual Promedio (USD $)</label>
+            <input type="number" id="dec-sueldo" class="form-input" value="800" min="100" max="50000" step="10" placeholder="800.00" />
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Incluye sueldo base, horas extras y comisiones</span>
+          </div>
+
+          <div>
+            <label for="dec-meses" class="form-label">Meses Laborados en el Período</label>
+            <select id="dec-meses" class="form-select">
+              <option value="12" selected>12 meses (Período completo / 1 año)</option>
+              <option value="11">11 meses</option>
+              <option value="10">10 meses</option>
+              <option value="9">9 meses</option>
+              <option value="8">8 meses</option>
+              <option value="7">7 meses</option>
+              <option value="6">6 meses</option>
+              <option value="5">5 meses</option>
+              <option value="4">4 meses</option>
+              <option value="3">3 meses</option>
+              <option value="2">2 meses</option>
+              <option value="1">1 mes</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="dec-region" class="form-label">Régimen Escolar (Para Décimo Cuarto)</label>
+            <select id="dec-region" class="form-select">
+              <option value="costa" selected>Costa e Insular (Período: 1 Mar - 28 Feb / Pago: Hasta 15 Mar)</option>
+              <option value="sierra">Sierra y Amazonía (Período: 1 Ago - 31 Jul / Pago: Hasta 15 Ago)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="dec-sbu" class="form-label">Salario Básico Unificado (SBU)</label>
+            <input type="number" id="dec-sbu" class="form-input" value="460" min="400" max="1000" step="5" />
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">SBU oficial en Ecuador</span>
+          </div>
+
+          <button id="btn-calc-decimos" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.25rem; font-size:1rem; padding:0.875rem;">
+            Calcular Décimos y Fondos
+          </button>
+        </div>
+      </section>
+
+      <!-- Resultados Décimos -->
+      <section aria-labelledby="resumen-decimos-title">
+        <h2 id="resumen-decimos-title" class="section-title" style="margin-bottom:1rem;">Montos Acumulados a Cobrar</h2>
+
+        <div style="display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:1.5rem;">
+          
+          <!-- Tarjeta 13° -->
+          <div class="card" style="border-left:4px solid var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+              <div>
+                <span class="badge badge-green" style="margin-bottom:0.25rem;">Art. 111 Código de Trabajo</span>
+                <h3 style="font-size:1.125rem; font-weight:800; margin:0;">Décimo Tercer Sueldo (Navideño)</h3>
+              </div>
+              <div id="stat-dec-13" style="font-size:1.75rem; font-weight:800; color:var(--accent);">$800.00</div>
+            </div>
+            <p style="font-size:0.8125rem; color:var(--text-muted); margin:0;">
+              📅 <strong>Fecha máxima de pago:</strong> Hasta el 24 de Diciembre.<br />
+              Cálculo: (Total remuneraciones del período) ÷ 12.
+            </p>
+          </div>
+
+          <!-- Tarjeta 14° -->
+          <div class="card" style="border-left:4px solid #38bdf8;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+              <div>
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); margin-bottom:0.25rem;">Art. 113 Código de Trabajo</span>
+                <h3 style="font-size:1.125rem; font-weight:800; margin:0;">Décimo Cuarto Sueldo (Escolar)</h3>
+              </div>
+              <div id="stat-dec-14" style="font-size:1.75rem; font-weight:800; color:#38bdf8;">$460.00</div>
+            </div>
+            <p id="dec-14-info" style="font-size:0.8125rem; color:var(--text-muted); margin:0;">
+              📅 <strong>Régimen Costa e Insular:</strong> Pago hasta el 15 de Marzo.<br />
+              Equivale a 1 SBU completo si completó los 12 meses de labor.
+            </p>
+          </div>
+
+          <!-- Tarjeta Fondos de Reserva -->
+          <div class="card" style="border-left:4px solid #fbbf24;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+              <div>
+                <span class="badge" style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); margin-bottom:0.25rem;">Ley de Seguridad Social</span>
+                <h3 style="font-size:1.125rem; font-weight:800; margin:0;">Fondos de Reserva Anuales</h3>
+              </div>
+              <div id="stat-dec-fondos" style="font-size:1.75rem; font-weight:800; color:#fbbf24;">$799.68</div>
+            </div>
+            <p style="font-size:0.8125rem; color:var(--text-muted); margin:0;">
+              Equivale al 8.33% anual del sueldo si el trabajador tiene más de 1 año con el mismo empleador.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAB 3: SIMULADOR DE LIQUIDACIÓN / FINIQUITO-->
+  <!-- ========================================== -->
+  <div id="tab-liquidacion" class="tab-pane animate-in" style="display:none;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;" class="laboral-grid">
+      
+      <!-- Entrada Liquidación -->
+      <section class="card" aria-labelledby="form-liq-title">
+        <h2 id="form-liq-title" class="section-title" style="margin-bottom:1.25rem;">Datos de la Salida Laboral</h2>
+
+        <div style="display:flex; flex-direction:column; gap:1.15rem;">
+          
+          <div>
+            <label for="liq-motivo" class="form-label">Causa de Terminación del Contrato</label>
+            <select id="liq-motivo" class="form-select">
+              <option value="despido" selected>Despido Intempestivo (Art. 188 + Art. 185)</option>
+              <option value="desahucio">Renuncia Voluntaria / Desahucio (Art. 185)</option>
+              <option value="acuerdo">Acuerdo de las Partes / Vencimiento de Contrato</option>
+              <option value="prueba">Despido en Período de Prueba (primeros 90 días)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="liq-sueldo" class="form-label">Última Remuneración Mensual Completa ($)</label>
+            <input type="number" id="liq-sueldo" class="form-input" value="900" min="100" max="50000" step="10" placeholder="Ej: 900" />
+            <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Para la indemnización se toma el sueldo más alto de los últimos 6 meses</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div>
+              <label for="liq-anios" class="form-label">Años de Servicio</label>
+              <input type="number" id="liq-anios" class="form-input" value="3" min="0" max="45" step="1" />
+            </div>
+            <div>
+              <label for="liq-meses" class="form-label">Meses Excedentes</label>
+              <input type="number" id="liq-meses" class="form-input" value="4" min="0" max="11" step="1" />
+            </div>
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:-0.5rem; display:block;">
+            ⚠️ En despido intempestivo, la fracción de año cuenta como un año completo (Art. 188).
+          </span>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div>
+              <label for="liq-dias-mes" class="form-label">Días Trabajados Último Mes</label>
+              <input type="number" id="liq-dias-mes" class="form-input" value="15" min="0" max="30" step="1" />
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.375rem;">
+                <label for="liq-dias-vacaciones" class="form-label" style="margin-bottom:0;">Vacaciones Pendientes</label>
+                <button type="button" id="btn-sugerir-vac" style="background:none; border:none; color:var(--accent); font-size:0.75rem; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">
+                  Sugerir por ley
+                </button>
+              </div>
+              <input type="number" id="liq-dias-vacaciones" class="form-input" value="7" min="0" max="60" step="1" />
+              <span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">Valor por día = Sueldo mensual ÷ 30</span>
+            </div>
+          </div>
+
+          <!-- Desahucio proporcional -->
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:0.75rem; padding:0.75rem 0.875rem;">
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem; color:var(--text);">
+              <input type="checkbox" id="liq-desahucio-fraccion" checked style="width:1.1rem; height:1.1rem; accent-color:var(--accent);" />
+              <span>Calcular <strong>desahucio proporcional por fracción de año</strong> (Art. 185)</span>
+            </label>
+          </div>
+
+          <div>
+            <label for="liq-region" class="form-label">Régimen Escolar (Décimo Cuarto Proporcional)</label>
+            <select id="liq-region" class="form-select">
+              <option value="costa" selected>Costa e Insular (Período Mar - Feb / Cobro Mar)</option>
+              <option value="sierra">Sierra y Amazonía (Período Ago - Jul / Cobro Ago)</option>
+            </select>
+          </div>
+
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:0.75rem; padding:0.875rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem; color:var(--text);">
+              <input type="checkbox" id="liq-acumula-decimos" checked style="width:1.1rem; height:1.1rem; accent-color:var(--accent);" />
+              <span>¿Acumulaba los décimos? (Liquidar proporcionales pendientes)</span>
+            </label>
+
+            <!-- Selector específico de meses acumulados -->
+            <div id="liq-decimos-meses-wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; border-top:1px dashed var(--border); padding-top:0.75rem;">
+              <div>
+                <label for="liq-meses-13" class="form-label" style="font-size:0.75rem;">Meses pend. 13° (Navideño)</label>
+                <input type="number" id="liq-meses-13" class="form-input" value="4" min="0" max="12" step="1" />
+                <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top:0.2rem;">Desde último 1 de dic</span>
+              </div>
+              <div>
+                <label for="liq-meses-14" class="form-label" style="font-size:0.75rem;">Meses pend. 14° (Escolar)</label>
+                <input type="number" id="liq-meses-14" class="form-input" value="4" min="0" max="12" step="1" />
+                <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top:0.2rem;">Según ciclo escolar</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-calc-liq" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.25rem; font-size:1rem; padding:0.875rem;">
+            Simular Acta de Finiquito
+          </button>
+        </div>
+      </section>
+
+      <!-- Resultados Liquidación -->
+      <section aria-labelledby="resumen-liq-title">
+        <h2 id="resumen-liq-title" class="section-title" style="margin-bottom:1rem;">Resultado de la Liquidación</h2>
+
+        <!-- Stat Card Total -->
+        <div class="stat-card" style="margin-bottom:1.25rem; border:1px solid rgba(16,185,129,0.3); background:radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, var(--surface) 80%);">
+          <div class="stat-label">Total Neto a Recibir (Acta de Finiquito)</div>
+          <div class="stat-value" id="stat-liq-total" style="font-size:2.5rem; color:var(--accent-light); margin-top:0.25rem;">$4,887.35</div>
+          <div class="stat-sub" id="stat-liq-sub">Incluye indemnización legal + beneficios pendientes</div>
+        </div>
+
+        <!-- Desglose Rubro por Rubro -->
+        <div class="card" style="margin-bottom:1rem;">
+          <h3 style="font-size:0.9375rem; font-weight:700; color:var(--text); margin-bottom:0.75rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+            Desglose de Haberes e Indemnizaciones
+          </h3>
+
+          <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem;" id="liq-detalles-lista">
+            
+            <div style="display:flex; justify-content:space-between;" id="row-liq-despido">
+              <span style="color:var(--text-muted);">Indemnización Despido Intempestivo (Art. 188):</span>
+              <strong id="det-liq-despido" style="color:var(--accent);">$3,600.00</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between;" id="row-liq-desahucio">
+              <span style="color:var(--text-muted);">Bonificación por Desahucio 25% (Art. 185):</span>
+              <strong id="det-liq-desahucio" style="color:var(--accent);">$675.00</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Sueldo por días laborados en el mes:</span>
+              <strong id="det-liq-dias" style="color:var(--text);">$450.00</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">Vacaciones no gozadas pendientes:</span>
+              <strong id="det-liq-vacaciones" style="color:var(--text);">$210.00</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between;" id="row-liq-dec13">
+              <span style="color:var(--text-muted);">Proporcional Décimo Tercer Sueldo:</span>
+              <strong id="det-liq-dec13" style="color:var(--text);">$300.00</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between;" id="row-liq-dec14">
+              <span style="color:var(--text-muted);">Proporcional Décimo Cuarto Sueldo:</span>
+              <strong id="det-liq-dec14" style="color:var(--text);">$153.33</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--border); padding-top:0.5rem; color:#f87171;">
+              <span>(-) Retención Aporte Personal IESS (9.45% días trab.):</span>
+              <strong id="det-liq-iess">-$42.53</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:0.5rem; font-size:1rem; font-weight:800;">
+              <span style="color:var(--text);">Total a Liquidar:</span>
+              <span id="det-liq-gran-total" style="color:var(--accent-light);">$4,887.35</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button id="btn-exportar-liq-csv" class="btn-secondary" style="flex:1; justify-content:center;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+            Exportar CSV
+          </button>
+          <button id="btn-imprimir-liq" class="btn-secondary" style="flex:1; justify-content:center;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+            Imprimir Proforma
+          </button>
+        </div>
+
+        <!-- ACTA IMPRIMIBLE PARA PRINT (ACTA DE FINIQUITO) -->
+        <div id="acta-imprimible" class="print-only">
+          <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:12px; margin-bottom:16px;">
+            <span style="font-size:10pt; text-transform:uppercase; font-weight:700; color:#4b5563; display:block; letter-spacing:0.05em;">República del Ecuador · Código del Trabajo</span>
+            <h2 style="font-size:16pt; font-weight:900; margin:4px 0 0; text-transform:uppercase; letter-spacing:0.05em; color:#000;">Acta Proforma de Finiquito y Liquidación Laboral</h2>
+            <p style="font-size:9pt; color:#6b7280; margin:4px 0 0;">Cálculo referencial conforme a los Arts. 69, 111, 113, 185 y 188 del Código del Trabajo</p>
+          </div>
+
+          <table class="print-table" style="margin-bottom:16px;">
+            <tbody>
+              <tr>
+                <td style="width:25%; font-weight:700; background:#f9fafb;">Fecha de Emisión:</td>
+                <td style="width:25%;" id="print-fecha">—</td>
+                <td style="width:25%; font-weight:700; background:#f9fafb;">Causa de Salida:</td>
+                <td style="width:25%;" id="print-motivo">—</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700; background:#f9fafb;">Última Remuneración:</td>
+                <td id="print-sueldo">—</td>
+                <td style="font-weight:700; background:#f9fafb;">Tiempo de Servicio:</td>
+                <td id="print-tiempo">—</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:11pt; font-weight:800; margin:16px 0 8px; text-transform:uppercase; color:#000;">Detalle de Haberes, Beneficios e Indemnizaciones</h3>
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Concepto / Rubro Liquidado</th>
+                <th style="text-align:left;">Base de Cálculo / Fundamento Legal</th>
+                <th style="text-align:right;">Subtotal USD</th>
+              </tr>
+            </thead>
+            <tbody id="print-tabla-body">
+            </tbody>
+            <tfoot>
+              <tr style="font-weight:900; background:#f3f4f6; font-size:12pt; border-top:2px solid #000;">
+                <td colspan="2" style="text-align:right;">VALOR LÍQUIDO A PERCIBIR EN FINIQUITO:</td>
+                <td style="text-align:right;" id="print-total">$0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="margin-top:16px; font-size:8.5pt; color:#4b5563; line-height:1.5; border:1px solid #d1d5db; padding:8px 12px; border-radius:4px;">
+            <strong>Constancia Legal (Art. 595 Código del Trabajo):</strong> Las partes comparecientes dejan expresa constancia de que los valores determinados en la presente proforma liquidan íntegramente los haberes ordinarios, extraordinarios, indemnizatorios y beneficios sociales derivados de la relación laboral, sin que exista reclamo futuro por los conceptos detallados.
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:50px; text-align:center;">
+            <div>
+              <div style="border-top:1px solid #000; width:80%; margin:0 auto; padding-top:8px;">
+                <strong style="display:block; font-size:10pt; color:#000;">POR EL EMPLEADOR</strong>
+                <span style="font-size:8.5pt; color:#6b7280;">Firma de Representante Legal / RUC</span>
+              </div>
+            </div>
+            <div>
+              <div style="border-top:1px solid #000; width:80%; margin:0 auto; padding-top:8px;">
+                <strong style="display:block; font-size:10pt; color:#000;">EL TRABAJADOR / EX-EMPLEADO</strong>
+                <span style="font-size:8.5pt; color:#6b7280;">Firma de Conformidad / Cédula de Identidad</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- GUÍA SEO COMPLETA Y NORMATIVA LEGAL        -->
+  <!-- ========================================== -->
+  <article class="prose-dark" style="margin-top:3rem; margin-bottom:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+    <h2>Guía de Beneficios Laborales y Finiquitos en Ecuador</h2>
+    <p>
+      La legislación laboral ecuatoriana, regida por el <strong>Código del Trabajo</strong> y las resoluciones del <strong>Ministerio del Trabajo</strong> y el <strong>IESS</strong>, establece derechos económicos irrenunciables para todos los trabajadores bajo relación de dependencia en el sector privado. Esta calculadora proporciona cálculos exactos y transparentes sin intermediarios.
+    </p>
+
+    <h2>1. Aportes a la Seguridad Social (IESS)</h2>
+    <p>
+      Todo trabajador en relación de dependencia debe estar afiliado al IESS desde el primer día de trabajo:
+    </p>
+    <ul>
+      <li><strong>Aporte Personal (9.45%):</strong> Se descuenta mensualmente del salario del empleado. Aplica sobre todos los ingresos ordinarios (sueldo, horas suplementarias, extraordinarias y comisiones).</li>
+      <li><strong>Aporte Patronal (11.15% - 12.15%):</strong> Es asumido íntegramente por el empleador (no se le descuenta al empleado). En el sector privado comercial es del 11.15%, más 0.5% para SECAP y 0.5% para IECE cuando aplica.</li>
+    </ul>
+
+    <h2>2. Décimo Tercer y Décimo Cuarto Sueldo</h2>
+    <h3>Décimo Tercer Sueldo (Bono Navideño - Art. 111)</h3>
+    <p>
+      Equivale a la doceava parte de todo lo ganado en el año laboral (del <strong>1 de diciembre al 30 de noviembre</strong>). Si el empleado renuncia o es separado antes de cumplir el año, recibe la parte proporcional calculada por los días o meses efectivamente laborados. La fecha máxima de pago en una sola cuota acumulada es el <strong>24 de diciembre</strong> de cada año.
+    </p>
+
+    <h3>Décimo Cuarto Sueldo (Bono Escolar - Art. 113)</h3>
+    <p>
+      Corresponde a un Salario Básico Unificado (<strong>1 SBU = $460.00</strong>) fijo, sin importar cuánto gane el colaborador, siempre que haya cumplido la jornada legal completa durante el período de 12 meses:
+    </p>
+    <ul>
+      <li><strong>Régimen Costa e Insular:</strong> Período del 1 de marzo al último día de febrero del año siguiente. Plazo máximo de pago: <strong>15 de marzo</strong>.</li>
+      <li><strong>Régimen Sierra y Amazonía:</strong> Período del 1 de agosto al 31 de julio del año siguiente. Plazo máximo de pago: <strong>15 de agosto</strong>.</li>
+    </ul>
+
+    <h2>3. Fondos de Reserva (Art. 196)</h2>
+    <p>
+      El derecho nace a partir del primer día del <strong>décimo tercer mes de labores</strong> consecutivas con el mismo patrono. Equivale al <strong>8.33%</strong> de la remuneración mensual. Si el empleado solicita acumulación mediante el portal del IESS, el empleador transfiere dicho monto directamente al IESS mensualmente; de lo contrario, el empleador debe pagarlo en el rol de pagos de cada mes.
+    </p>
+
+    <h2>4. ¿Cómo se calcula la Liquidación por Despido Intempestivo? (Art. 188)</h2>
+    <p>
+      El despido intempestivo ocurre cuando el empleador termina la relación laboral sin causa justa legalmente comprobada por visto bueno:
+    </p>
+    <ul>
+      <li><strong>De 1 a 3 años de servicio:</strong> Indemnización equivalente a 3 meses de la última remuneración mensual completa.</li>
+      <li><strong>Más de 3 años de servicio:</strong> 1 mes de remuneración por cada año de servicio cumplido, hasta un límite máximo de 25 sueldos. <em>Importante:</em> La fracción de un año se considera como año completo (por ejemplo, 3 años y 2 meses se pagan como 4 años de sueldo).</li>
+      <li><strong>Bonificación por Desahucio (Art. 185):</strong> Además de la indemnización por despido, se le paga obligatoriamente el 25% del último sueldo mensual por cada año de servicio completo.</li>
+      <li><strong>Beneficios de ley proporcionales:</strong> Décimo 3ero, Décimo 4to y Vacaciones no gozadas pendientes de pago hasta la fecha de desvinculación.</li>
+    </ul>
+
+    <h2>5. Vacaciones no Gozadas (Art. 69)</h2>
+    <p>
+      Todo colaborador tiene derecho a 15 días anuales de descanso remunerado. Si el contrato termina antes de gozarlas, deben liquidarse en dinero. A partir del quinto año de antigüedad con el mismo empleador, el trabajador gana un día adicional de vacación por cada año excedente (o su compensación económica), hasta llegar a un tope máximo de 30 días anuales.
+    </p>
+  </article>
+
+  <!-- Preguntas Frecuentes -->
+  <FaqAccordion items={faqs} />
+
+</ToolLayout>
+
+<style>
+  @media (max-width: 850px) {
+    .laboral-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  .print-only {
+    display: none !important;
+  }
+
+  @media print {
+    /* Ocultar elementos de la interfaz interactiva y layout web al imprimir */
+    header,
+    footer,
+    [role="complementary"],
+    .nav-link,
+    #menu-toggle,
+    .toggle-group,
+    .prose-dark,
+    section[aria-label="Preguntas frecuentes"],
+    .btn-primary,
+    .btn-secondary,
+    section[aria-labelledby="form-liq-title"],
+    section[aria-labelledby="resumen-liq-title"],
+    #tab-rol,
+    #tab-decimos,
+    .stat-card,
+    .badge {
+      display: none !important;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    main {
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+
+    .print-only {
+      display: block !important;
+      background: #ffffff !important;
+      color: #111827 !important;
+      padding: 24px 20px !important;
+    }
+
+    .print-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin: 12px 0 16px !important;
+      font-size: 10pt !important;
+    }
+
+    .print-table th,
+    .print-table td {
+      border: 1px solid #9ca3af !important;
+      padding: 6px 10px !important;
+      color: #111827 !important;
+    }
+
+    .print-table th {
+      background-color: #f3f4f6 !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      font-size: 9pt !important;
+    }
+  }
+</style>
+
+<!-- ========================================== -->
+<!-- LÓGICA JAVASCRIPT CLIENT-SIDE              -->
+<!-- ========================================== -->
+<script>
+  // Formateador moneda
+  const fmt = (n: number) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+  // Constantes de Ley Ecuador
+  const TASA_IESS_PERSONAL = 0.0945;
+  const TASA_IESS_PATRONAL = 0.1115;
+  const TASA_FONDOS_RESERVA = 0.0833;
+
+  // -------------------------------------------------------------
+  // CONTROL DE PESTAÑAS (TABS)
+  // -------------------------------------------------------------
+  const tabButtons = document.querySelectorAll('.toggle-group .toggle-btn[data-tab]');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-tab');
+      if (!targetId) return;
+
+      tabButtons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      tabPanes.forEach(pane => {
+        const el = pane as HTMLElement;
+        if (el.id === targetId) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // -------------------------------------------------------------
+  // MÓDULO 1: ROL MENSUAL
+  // -------------------------------------------------------------
+  const inpRolSueldo = document.getElementById('rol-sueldo') as HTMLInputElement;
+  const inpRolAdic   = document.getElementById('rol-adicionales') as HTMLInputElement;
+  const chkRol13     = document.getElementById('rol-check-13') as HTMLInputElement;
+  const chkRol14     = document.getElementById('rol-check-14') as HTMLInputElement;
+  const chkRolFondos = document.getElementById('rol-check-fondos') as HTMLInputElement;
+  const btnCalcRol   = document.getElementById('btn-calc-rol') as HTMLButtonElement;
+
+  const statRolNeto     = document.getElementById('stat-rol-neto')!;
+  const statRolIess     = document.getElementById('stat-rol-iess')!;
+  const detRolBruto     = document.getElementById('det-rol-bruto')!;
+  const detRolIess      = document.getElementById('det-rol-iess')!;
+  const rowDet13        = document.getElementById('row-det-13') as HTMLElement;
+  const detRol13        = document.getElementById('det-rol-13')!;
+  const rowDet14        = document.getElementById('row-det-14') as HTMLElement;
+  const detRol14        = document.getElementById('det-rol-14')!;
+  const rowDetFondos    = document.getElementById('row-det-fondos') as HTMLElement;
+  const detRolFondos    = document.getElementById('det-rol-fondos')!;
+  const detRolTotal     = document.getElementById('det-rol-total')!;
+  const statRolPatronal = document.getElementById('stat-rol-patronal')!;
+  const statRolCostoEmp = document.getElementById('stat-rol-costo-empresa')!;
+
+  function calcularRol() {
+    const sueldoBase = parseFloat(inpRolSueldo.value) || 0;
+    const adicionales = parseFloat(inpRolAdic.value) || 0;
+    const sbu = 460.0;
+
+    const ingresoGravable = sueldoBase + adicionales;
+    const aportePersonal = round2(ingresoGravable * TASA_IESS_PERSONAL);
+    const aportePatronal = round2(ingresoGravable * TASA_IESS_PATRONAL);
+
+    let val13 = 0;
+    if (chkRol13.checked) {
+      val13 = round2(ingresoGravable / 12);
+      rowDet13.style.display = 'flex';
+      detRol13.textContent = fmt(val13);
+    } else {
+      rowDet13.style.display = 'none';
+    }
+
+    let val14 = 0;
+    if (chkRol14.checked) {
+      val14 = round2(sbu / 12);
+      rowDet14.style.display = 'flex';
+      detRol14.textContent = fmt(val14);
+    } else {
+      rowDet14.style.display = 'none';
+    }
+
+    let valFondos = 0;
+    if (chkRolFondos.checked) {
+      valFondos = round2(ingresoGravable * TASA_FONDOS_RESERVA);
+      rowDetFondos.style.display = 'flex';
+      detRolFondos.textContent = fmt(valFondos);
+    } else {
+      rowDetFondos.style.display = 'none';
+    }
+
+    const sueldoNeto = round2(ingresoGravable - aportePersonal + val13 + val14 + valFondos);
+
+    // Costo total de provisiones empresa:
+    const prov13 = round2(ingresoGravable / 12);
+    const prov14 = round2(sbu / 12);
+    const provFondos = round2(ingresoGravable * TASA_FONDOS_RESERVA);
+    const provVacaciones = round2(ingresoGravable / 24);
+    const costoEmpresa = round2(ingresoGravable + aportePatronal + prov13 + prov14 + provFondos + provVacaciones);
+
+    // Renderizar
+    statRolNeto.textContent = fmt(sueldoNeto);
+    statRolIess.textContent = fmt(aportePersonal);
+    detRolBruto.textContent = fmt(ingresoGravable);
+    detRolIess.textContent = `-${fmt(aportePersonal)}`;
+    detRolTotal.textContent = fmt(sueldoNeto);
+    statRolPatronal.textContent = fmt(aportePatronal);
+    statRolCostoEmp.textContent = fmt(costoEmpresa);
+  }
+
+  btnCalcRol.addEventListener('click', calcularRol);
+  [inpRolSueldo, inpRolAdic, chkRol13, chkRol14, chkRolFondos].forEach(el => {
+    el.addEventListener('input', calcularRol);
+    el.addEventListener('change', calcularRol);
+  });
+
+  // -------------------------------------------------------------
+  // MÓDULO 2: DÉCIMOS Y FONDOS ACUMULADOS
+  // -------------------------------------------------------------
+  const inpDecSueldo = document.getElementById('dec-sueldo') as HTMLInputElement;
+  const selDecMeses  = document.getElementById('dec-meses') as HTMLSelectElement;
+  const selDecRegion = document.getElementById('dec-region') as HTMLSelectElement;
+  const inpDecSbu    = document.getElementById('dec-sbu') as HTMLInputElement;
+  const btnCalcDec   = document.getElementById('btn-calc-decimos') as HTMLButtonElement;
+
+  const statDec13    = document.getElementById('stat-dec-13')!;
+  const statDec14    = document.getElementById('stat-dec-14')!;
+  const statDecFondos= document.getElementById('stat-dec-fondos')!;
+  const dec14Info    = document.getElementById('dec-14-info')!;
+
+  function calcularDecimos() {
+    const sueldo = parseFloat(inpDecSueldo.value) || 0;
+    const meses = parseInt(selDecMeses.value) || 12;
+    const sbu = parseFloat(inpDecSbu.value) || 460.0;
+    const region = selDecRegion.value;
+
+    // 13°: Ganado en el período / 12
+    const total13 = round2((sueldo * meses) / 12);
+
+    // 14°: Proporcional al tiempo laborado sobre 1 SBU
+    const total14 = round2((sbu / 12) * meses);
+
+    // Fondos de reserva
+    const totalFondos = round2(sueldo * meses * TASA_FONDOS_RESERVA);
+
+    statDec13.textContent = fmt(total13);
+    statDec14.textContent = fmt(total14);
+    statDecFondos.textContent = fmt(totalFondos);
+
+    if (region === 'costa') {
+      dec14Info.innerHTML = `📅 <strong>Régimen Costa e Insular:</strong> Pago máximo hasta el <strong>15 de Marzo</strong>.<br />Período computable: 1 Mar a último día de Feb (${meses} meses calculados).`;
+    } else {
+      dec14Info.innerHTML = `📅 <strong>Régimen Sierra y Amazonía:</strong> Pago máximo hasta el <strong>15 de Agosto</strong>.<br />Período computable: 1 Ago a 31 Jul (${meses} meses calculados).`;
+    }
+  }
+
+  btnCalcDec.addEventListener('click', calcularDecimos);
+  [inpDecSueldo, selDecMeses, selDecRegion, inpDecSbu].forEach(el => {
+    el.addEventListener('input', calcularDecimos);
+    el.addEventListener('change', calcularDecimos);
+  });
+
+  // -------------------------------------------------------------
+  // MÓDULO 3: SIMULADOR DE LIQUIDACIÓN / FINIQUITO
+  // -------------------------------------------------------------
+  const selLiqMotivo        = document.getElementById('liq-motivo') as HTMLSelectElement;
+  const inpLiqSueldo        = document.getElementById('liq-sueldo') as HTMLInputElement;
+  const inpLiqAnios         = document.getElementById('liq-anios') as HTMLInputElement;
+  const inpLiqMeses         = document.getElementById('liq-meses') as HTMLInputElement;
+  const inpLiqDiasMes       = document.getElementById('liq-dias-mes') as HTMLInputElement;
+  const inpLiqVac           = document.getElementById('liq-dias-vacaciones') as HTMLInputElement;
+  const btnSugerirVac       = document.getElementById('btn-sugerir-vac') as HTMLButtonElement;
+  const chkLiqDesahucioFrac = document.getElementById('liq-desahucio-fraccion') as HTMLInputElement;
+  const selLiqRegion        = document.getElementById('liq-region') as HTMLSelectElement;
+  const chkLiqAcum          = document.getElementById('liq-acumula-decimos') as HTMLInputElement;
+  const liqDecimosMesesWrap = document.getElementById('liq-decimos-meses-wrap') as HTMLElement;
+  const inpLiqMeses13       = document.getElementById('liq-meses-13') as HTMLInputElement;
+  const inpLiqMeses14       = document.getElementById('liq-meses-14') as HTMLInputElement;
+  const btnCalcLiq          = document.getElementById('btn-calc-liq') as HTMLButtonElement;
+  const btnExportCsv        = document.getElementById('btn-exportar-liq-csv') as HTMLButtonElement;
+  const btnImprimir         = document.getElementById('btn-imprimir-liq') as HTMLButtonElement;
+
+  const statLiqTotal        = document.getElementById('stat-liq-total')!;
+  const statLiqSub          = document.getElementById('stat-liq-sub')!;
+  const rowLiqDespido       = document.getElementById('row-liq-despido') as HTMLElement;
+  const detLiqDespido       = document.getElementById('det-liq-despido')!;
+  const rowLiqDesahucio     = document.getElementById('row-liq-desahucio') as HTMLElement;
+  const detLiqDesahucio     = document.getElementById('det-liq-desahucio')!;
+  const detLiqDias          = document.getElementById('det-liq-dias')!;
+  const detLiqVac           = document.getElementById('det-liq-vacaciones')!;
+  const rowLiqDec13         = document.getElementById('row-liq-dec13') as HTMLElement;
+  const detLiqDec13         = document.getElementById('det-liq-dec13')!;
+  const rowLiqDec14         = document.getElementById('row-liq-dec14') as HTMLElement;
+  const detLiqDec14         = document.getElementById('det-liq-dec14')!;
+  const detLiqIess          = document.getElementById('det-liq-iess')!;
+  const detLiqGranTot       = document.getElementById('det-liq-gran-total')!;
+
+  // Elementos del Acta Proforma Imprimible
+  const printFecha     = document.getElementById('print-fecha')!;
+  const printMotivo    = document.getElementById('print-motivo')!;
+  const printSueldo    = document.getElementById('print-sueldo')!;
+  const printTiempo    = document.getElementById('print-tiempo')!;
+  const printTablaBody = document.getElementById('print-tabla-body')!;
+  const printTotal     = document.getElementById('print-total')!;
+
+  // Sugerir vacaciones según antigüedad (Art. 69 Código del Trabajo)
+  btnSugerirVac?.addEventListener('click', () => {
+    const anios = parseInt(inpLiqAnios.value) || 0;
+    const dias = anios <= 5 ? 15 : Math.min(15 + (anios - 5), 30);
+    inpLiqVac.value = String(dias);
+    calcularLiquidacion();
+  });
+
+  // Mostrar / ocultar meses de décimos
+  chkLiqAcum?.addEventListener('change', () => {
+    liqDecimosMesesWrap.style.display = chkLiqAcum.checked ? 'grid' : 'none';
+  });
+
+  interface LiquidacionResultado {
+    motivoTexto: string;
+    sueldo: number;
+    anios: number;
+    meses: number;
+    diasMes: number;
+    diasVac: number;
+    despido: number;
+    desahucio: number;
+    diasTrabajados: number;
+    vacaciones: number;
+    decimo13: number;
+    decimo14: number;
+    iessRetencion: number;
+    total: number;
+    aniosComputables: number;
+    tiempoDesahucio: number;
+    tiempoComp13: number;
+    tiempoComp14: number;
+    valorDiaVacacion: number;
+  }
+
+  let ultimaLiquidacion: LiquidacionResultado | null = null;
+
+  function calcularLiquidacion(): LiquidacionResultado {
+    const motivo = selLiqMotivo.value;
+    const sueldo = parseFloat(inpLiqSueldo.value) || 0;
+    const anios = parseInt(inpLiqAnios.value) || 0;
+    const meses = parseInt(inpLiqMeses.value) || 0;
+    const diasMes = parseInt(inpLiqDiasMes.value) || 0;
+    const diasVac = parseInt(inpLiqVac.value) || 0;
+    const acumula = chkLiqAcum.checked;
+    const fraccionDesahucio = chkLiqDesahucioFrac.checked;
+    const sbu = 460.0;
+
+    let motivoTexto = 'Despido Intempestivo (Art. 188 + 185)';
+    if (motivo === 'desahucio') motivoTexto = 'Renuncia Voluntaria / Desahucio (Art. 185)';
+    if (motivo === 'acuerdo') motivoTexto = 'Acuerdo de las Partes / Vencimiento de Contrato';
+    if (motivo === 'prueba') motivoTexto = 'Despido en Período de Prueba (≤ 90 días)';
+
+    let despido = 0;
+    let aniosComputables = 0;
+
+    // 1. Indemnización por Despido Intempestivo (Art. 188)
+    if (motivo === 'despido') {
+      // Fracción de año se considera año completo
+      aniosComputables = meses > 0 ? anios + 1 : Math.max(anios, 1);
+
+      if (aniosComputables <= 3) {
+        despido = round2(sueldo * 3);
+      } else {
+        const factor = Math.min(aniosComputables, 25);
+        despido = round2(sueldo * factor);
+      }
+    }
+
+    // 2. Bonificación por Desahucio (Art. 185) - 25% por cada año de servicio
+    let desahucio = 0;
+    let tiempoDesahucio = 0;
+    if (motivo === 'despido' || motivo === 'desahucio') {
+      tiempoDesahucio = fraccionDesahucio
+        ? anios + (meses / 12) + (diasMes / 360)
+        : anios;
+      desahucio = round2(sueldo * 0.25 * tiempoDesahucio);
+    }
+
+    // 3. Sueldo días trabajados último mes
+    const valorDia = sueldo / 30;
+    const diasTrabajados = round2(valorDia * Math.min(diasMes, 30));
+
+    // 4. Vacaciones no gozadas (Art. 69: 15 días anuales equivalen a 0.5 sueldo mensual => sueldo / 30 por día)
+    const valorDiaVacacion = round2(sueldo / 30);
+    const vacaciones = round2((sueldo / 30) * diasVac);
+
+    // 5. Proporcionales de Décimos
+    let decimo13 = 0;
+    let decimo14 = 0;
+    let tiempoComp13 = 0;
+    let tiempoComp14 = 0;
+
+    if (acumula) {
+      const meses13 = parseFloat(inpLiqMeses13.value) || 0;
+      const meses14 = parseFloat(inpLiqMeses14.value) || 0;
+
+      tiempoComp13 = meses13 + (diasMes / 30);
+      decimo13 = round2((sueldo * tiempoComp13) / 12);
+
+      tiempoComp14 = meses14 + (diasMes / 30);
+      decimo14 = round2((sbu * tiempoComp14) / 12);
+    }
+
+    // 6. Retención IESS Personal sobre los días trabajados del mes (9.45%)
+    const iessRetencion = round2(diasTrabajados * TASA_IESS_PERSONAL);
+
+    // Total líquido
+    const total = round2(despido + desahucio + diasTrabajados + vacaciones + decimo13 + decimo14 - iessRetencion);
+
+    // Actualizar UI
+    if (despido > 0) {
+      rowLiqDespido.style.display = 'flex';
+      detLiqDespido.textContent = fmt(despido);
+    } else {
+      rowLiqDespido.style.display = 'none';
+    }
+
+    if (desahucio > 0) {
+      rowLiqDesahucio.style.display = 'flex';
+      detLiqDesahucio.textContent = fmt(desahucio);
+    } else {
+      rowLiqDesahucio.style.display = 'none';
+    }
+
+    detLiqDias.textContent = fmt(diasTrabajados);
+    detLiqVac.textContent = fmt(vacaciones);
+
+    if (acumula) {
+      rowLiqDec13.style.display = 'flex';
+      rowLiqDec14.style.display = 'flex';
+      detLiqDec13.textContent = fmt(decimo13);
+      detLiqDec14.textContent = fmt(decimo14);
+    } else {
+      rowLiqDec13.style.display = 'none';
+      rowLiqDec14.style.display = 'none';
+    }
+
+    detLiqIess.textContent = `-${fmt(iessRetencion)}`;
+    statLiqTotal.textContent = fmt(total);
+    detLiqGranTot.textContent = fmt(total);
+
+    if (motivo === 'despido') {
+      statLiqSub.textContent = 'Incluye indemnización legal por despido intempestivo + desahucio + haberes';
+    } else if (motivo === 'desahucio') {
+      statLiqSub.textContent = 'Renuncia voluntaria: Incluye bonificación 25% por desahucio + haberes pendientes';
+    } else {
+      statLiqSub.textContent = 'Liquidación de haberes y beneficios proporcionales pendientes de cobro';
+    }
+
+    // Actualizar Acta Proforma para Impresión
+    const fechaActual = new Date().toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric' });
+    printFecha.textContent = fechaActual;
+    printMotivo.textContent = motivoTexto;
+    printSueldo.textContent = fmt(sueldo);
+    printTiempo.textContent = `${anios} año(s), ${meses} mes(es) y ${diasMes} día(s)`;
+    printTotal.textContent = fmt(total);
+
+    let rowsPrint = '';
+    if (despido > 0) {
+      rowsPrint += `
+        <tr>
+          <td><strong>Indemnización Despido Intempestivo (Art. 188)</strong></td>
+          <td>${aniosComputables} mes(es) de remuneración (fracción computa como año)</td>
+          <td style="text-align:right; font-weight:700;">${fmt(despido)}</td>
+        </tr>
+      `;
+    }
+    if (desahucio > 0) {
+      rowsPrint += `
+        <tr>
+          <td><strong>Bonificación por Desahucio (Art. 185)</strong></td>
+          <td>25% de última remuneración por ${tiempoDesahucio.toFixed(2)} año(s) computable(s)</td>
+          <td style="text-align:right; font-weight:700;">${fmt(desahucio)}</td>
+        </tr>
+      `;
+    }
+    rowsPrint += `
+      <tr>
+        <td><strong>Sueldo Días Trabajados del Mes</strong></td>
+        <td>${diasMes} día(s) laborados a razón de ${fmt(valorDia)}/día</td>
+        <td style="text-align:right;">${fmt(diasTrabajados)}</td>
+      </tr>
+      <tr>
+        <td><strong>Vacaciones No Gozadas (Art. 69)</strong></td>
+        <td>${diasVac} día(s) acumulados a razón de ${fmt(valorDiaVacacion)}/día (sueldo ÷ 30)</td>
+        <td style="text-align:right;">${fmt(vacaciones)}</td>
+      </tr>
+    `;
+    if (acumula) {
+      rowsPrint += `
+        <tr>
+          <td><strong>Proporcional Décimo Tercer Sueldo (Navideño)</strong></td>
+          <td>${tiempoComp13.toFixed(2)} mes(es) acumulados sobre última remuneración</td>
+          <td style="text-align:right;">${fmt(decimo13)}</td>
+        </tr>
+        <tr>
+          <td><strong>Proporcional Décimo Cuarto Sueldo (Escolar)</strong></td>
+          <td>${tiempoComp14.toFixed(2)} mes(es) acumulados sobre SBU ($${sbu.toFixed(2)})</td>
+          <td style="text-align:right;">${fmt(decimo14)}</td>
+        </tr>
+      `;
+    }
+    rowsPrint += `
+      <tr style="color:#b91c1c;">
+        <td><strong>(-) Retención Aporte Personal IESS (9.45%)</strong></td>
+        <td>Deducción legal sobre ingresos ordinarios por días trabajados</td>
+        <td style="text-align:right; font-weight:700;">-${fmt(iessRetencion)}</td>
+      </tr>
+    `;
+    printTablaBody.innerHTML = rowsPrint;
+
+    ultimaLiquidacion = {
+      motivoTexto,
+      sueldo,
+      anios,
+      meses,
+      diasMes,
+      diasVac,
+      despido,
+      desahucio,
+      diasTrabajados,
+      vacaciones,
+      decimo13,
+      decimo14,
+      iessRetencion,
+      total,
+      aniosComputables,
+      tiempoDesahucio,
+      tiempoComp13,
+      tiempoComp14,
+      valorDiaVacacion
+    };
+
+    return ultimaLiquidacion;
+  }
+
+  btnCalcLiq?.addEventListener('click', calcularLiquidacion);
+  [
+    selLiqMotivo,
+    inpLiqSueldo,
+    inpLiqAnios,
+    inpLiqMeses,
+    inpLiqDiasMes,
+    inpLiqVac,
+    chkLiqDesahucioFrac,
+    selLiqRegion,
+    chkLiqAcum,
+    inpLiqMeses13,
+    inpLiqMeses14
+  ].forEach(el => {
+    el?.addEventListener('input', calcularLiquidacion);
+    el?.addEventListener('change', calcularLiquidacion);
+  });
+
+  // -------------------------------------------------------------
+  // EXPORTAR A CSV
+  // -------------------------------------------------------------
+  btnExportCsv?.addEventListener('click', () => {
+    const res = calcularLiquidacion();
+    const csvContent = [
+      ['Rubro / Concepto', 'Base de Calculo / Detalle', 'Monto (USD)'],
+      ['Causa de terminacion', res.motivoTexto, ''],
+      ['Ultima remuneracion mensual', `$${res.sueldo.toFixed(2)}`, ''],
+      ['Tiempo de servicio', `${res.anios} anios, ${res.meses} meses y ${res.diasMes} dias`, ''],
+      ['Indemnizacion Despido Intempestivo (Art. 188)', res.despido > 0 ? `${res.aniosComputables} meses de sueldo` : 'No aplica', `$${res.despido.toFixed(2)}`],
+      ['Bonificacion por Desahucio (Art. 185)', `${res.tiempoDesahucio.toFixed(2)} anios al 25%`, `$${res.desahucio.toFixed(2)}`],
+      ['Sueldo por dias laborados', `${res.diasMes} dias del mes`, `$${res.diasTrabajados.toFixed(2)}`],
+      ['Vacaciones no gozadas (Art. 69)', `${res.diasVac} dias a $${res.valorDiaVacacion.toFixed(2)}/dia (sueldo/30)`, `$${res.vacaciones.toFixed(2)}`],
+      ['Decimo Tercero proporcional', `${res.tiempoComp13.toFixed(2)} meses acumulados`, `$${res.decimo13.toFixed(2)}`],
+      ['Decimo Cuarto proporcional', `${res.tiempoComp14.toFixed(2)} meses sobre SBU`, `$${res.decimo14.toFixed(2)}`],
+      ['Descuento IESS Personal (9.45%)', 'Sobre dias laborados', `-$${res.iessRetencion.toFixed(2)}`],
+      ['TOTAL NETO A RECIBIR', 'Acta de Finiquito', `$${res.total.toFixed(2)}`]
+    ].map(e => e.map(cell => `"${cell}"`).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `liquidacion-laboral-ecuador-${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  // -------------------------------------------------------------
+  // IMPRIMIR PROFORMA
+  // -------------------------------------------------------------
+  btnImprimir?.addEventListener('click', () => {
+    calcularLiquidacion();
+    window.print();
+  });
+
+  // Ejecución inicial por defecto
+  calcularRol();
+  calcularDecimos();
+  calcularLiquidacion();
+</script>
